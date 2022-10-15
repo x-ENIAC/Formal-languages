@@ -1,44 +1,19 @@
 DOA: v1
-Start: q1
-Acceptance: q1 & q3 & q7 
+Start: q3
+Acceptance: q2 & q4
 --BEGIN--
 State: q1
--> a q358
--> b q4
+-> a q2
+-> EPS q4
+-> b q3
 State: q2
 -> a q3
--> b qx
+-> b q4
 State: q3
--> a q8
--> b q2
+-> EPS q1
+-> b q3
 State: q4
--> a q6
--> b q7
+-> EPS q5
 State: q5
--> a q6
--> b q7
-State: q6
--> a qx
--> b q7
-State: q7
--> a q5
--> b q4
-State: q8
--> a q8
--> b qx
-State: q358
--> a q86
--> b q27
-State: q27
--> a q35
--> b q4
-State: q35
--> a q86
--> b q27
-State: q86
--> a q8
--> b q7
-State: qx
--> a qx
--> b qx
+-> b q6
 --END--

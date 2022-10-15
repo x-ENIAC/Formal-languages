@@ -1,7 +1,7 @@
 from ast import arg
 from audioop import add
 import os
-from turtle import dot
+from turtle import dot, st
 import numpy as np
 
 BEGIN_CONSTANT = "--BEGIN--"
@@ -40,11 +40,11 @@ def handle_start_args(args):
 
 # Acceptance: <args>
 def handle_acceptance_args(args):
-    real_args = np.array([])
+    real_args = []
     next_is_vertex = True
     for i in args:
         if i != ACCEPTANCE_DELIMETER and next_is_vertex == True:
-            real_args = np.append(real_args, i)
+            real_args.append(i)
             next_is_vertex = False
         elif i == ACCEPTANCE_DELIMETER and next_is_vertex == False:
             next_is_vertex = True
@@ -70,13 +70,16 @@ def set_transition(automat, transition_from, transition, transition_to):
     new_item = (transition, transition_to)
     # print("\t\t\tset_transition:", new_item)
     if transition_from not in answer_automat.keys():
-        answer_automat[transition_from] = np.array([new_item], dtype = tuple)
+        answer_automat[transition_from] = [new_item]
     else:
-        answer_automat[transition_from] = np.vstack((answer_automat[transition_from], new_item))
+        answer_automat[transition_from].append(new_item)
+
+    if transition_to not in answer_automat.keys():
+        answer_automat[transition_to] = []
     return answer_automat
 
 def convert_text_to_automat(text):
-    automat = {"automat": dict(), "start": None, "acceptance": np.array([])}
+    automat = {"automat": dict(), "start": None, "acceptance": []}
 
     # scan all before --BEGIN--
     continue_scan = True
@@ -103,7 +106,6 @@ def convert_text_to_automat(text):
     
     while continue_scan:
         category = scan_category(text)
-        print(automat["automat"])
         is_empty, category, args = category["is_empty"], category["category"], category["args"]
         if category == END_CONSTANT:
             break
@@ -120,9 +122,10 @@ def convert_text_to_automat(text):
 def enter_automat(input_filename):
     return convert_text_to_automat(scan_file(input_filename))
 
-def draw_automat(automat, automat_filename):
-    dot_filename = automat_filename + ".dot"
-    picture_filename = automat_filename + ".png"
+def draw_automat(automat, automat_filename, postfix_name = ""):
+    automat_filepath = automat_filename.split('/')[:-1][0] + "/"
+    dot_filename = automat_filepath + postfix_name + ".dot"
+    picture_filename = automat_filepath + postfix_name + ".png"
 
     create_file(dot_filename)
     print_automat(automat, dot_filename)
@@ -139,6 +142,7 @@ def print_automat(automat, filename):
     automat = automat["automat"]
 
     output_text = "digraph {\n"
+    output_text += "\tstart [style = \"invis\"]\n\tstart -> \"{start}\"\n".format(start=start)
 
     for key in automat.keys():
         values = automat[key]
@@ -146,19 +150,19 @@ def print_automat(automat, filename):
         if key not in added_vertex:
             added_vertex.append(key)
             if key not in acceptance:
-                    line += "\t" + "{vertex}".format(vertex=key) + "\n"
+                    line += "\t" + "\"{vertex}\"".format(vertex=key) + "\n"
             else:
-                line += "\t" + "{vertex} [shape=doublecircle]".format(vertex=key) + "\n"
+                line += "\t" + "\"{vertex}\" [shape=doublecircle]".format(vertex=key) + "\n"
 
         for value in values:
             transition, transition_to = value[0], value[1]
             if transition_to not in added_vertex:
                 added_vertex.append(transition_to)
                 if transition_to not in acceptance:
-                    line += "\t" + "{vertex}".format(vertex=transition_to) + "\n"
+                    line += "\t" + "\"{vertex}\"".format(vertex=transition_to) + "\n"
                 else:
-                    line += "\t" + "{vertex} [shape=doublecircle]".format(vertex=transition_to) + "\n"
-            line += "\t" + "{vertex_from} -> {vertex_to} [label = \"{letter}\"]".format(vertex_from=key, vertex_to=transition_to, letter=transition) + "\n"
+                    line += "\t" + "\"{vertex}\" [shape=doublecircle]".format(vertex=transition_to) + "\n"
+            line += "\t" + "\"{vertex_from}\" -> \"{vertex_to}\" [label = \"{letter}\"]".format(vertex_from=key, vertex_to=transition_to, letter=transition) + "\n"
 
         output_text += line
 
