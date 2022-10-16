@@ -1,0 +1,13 @@
+digraph {
+	start [style = "invis"]
+	start -> "q2"
+	"q2" [shape=doublecircle]
+	"q4" [shape=doublecircle]
+	"q2" -> "q4" [label = "a"]
+	"stock"
+	"q2" -> "stock" [label = "b"]
+	"q4" -> "stock" [label = "a"]
+	"q4" -> "stock" [label = "b"]
+	"stock" -> "stock" [label = "a"]
+	"stock" -> "stock" [label = "b"]
+}

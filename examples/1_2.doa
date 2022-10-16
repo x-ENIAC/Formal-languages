@@ -1,0 +1,29 @@
+DOA: v1
+Start: qa
+Acceptance: qg & qf
+--BEGIN--
+State: qa
+-> a qh
+-> b qb
+State: qb
+-> a qh
+-> b qa
+State: qh
+-> a qc
+-> b qc
+State: qc
+-> a qe
+-> b qf
+State: qe
+-> a qf
+-> b qg
+State: qf
+-> a qf
+-> b qf
+State: qd
+-> a qe
+-> b qf
+State: qg
+-> a qg
+-> b qf
+--END--

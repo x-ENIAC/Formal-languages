@@ -3,6 +3,9 @@ from audioop import add
 import os
 from turtle import dot, st
 import numpy as np
+from globals import *
+
+global_counter = 1
 
 BEGIN_CONSTANT = "--BEGIN--"
 END_CONSTANT = "--END--"
@@ -78,8 +81,17 @@ def set_transition(automat, transition_from, transition, transition_to):
         answer_automat[transition_to] = []
     return answer_automat
 
+def get_alphabet_from_automat(automat):
+    alphabet = []
+    for vertex in automat:
+        for transition, transition_to in automat[vertex]:
+            if transition not in alphabet:
+                alphabet.append(transition)
+    alphabet.sort()
+    return alphabet
+
 def convert_text_to_automat(text):
-    automat = {"automat": dict(), "start": None, "acceptance": []}
+    automat = {"automat": dict(), "start": None, "acceptance": [], "alphabet": []}
 
     # scan all before --BEGIN--
     continue_scan = True
@@ -96,13 +108,14 @@ def convert_text_to_automat(text):
             automat["acceptance"] = handle_acceptance_args(args)
         text = text[1:]
     
-    if automat["start"] == None or len(automat["acceptance"]) == 0:
+    if len(automat["acceptance"]) == 0:
         raise Exception("Bad acceptance vertexes")
+    if automat["start"] == None:
+        raise Exception("Bad start vertex")
     
     # scan all after --BEGIN--
     continue_scan = True
     now_state = None
-    now_state_transitions = None
     
     while continue_scan:
         category = scan_category(text)
@@ -114,18 +127,22 @@ def convert_text_to_automat(text):
             now_state = args[0]
         elif category == TRANSITION_CONSTANT:
             handle_transition_args(args)
-            # print("\t\t", args)
             automat["automat"] = set_transition(automat["automat"], now_state, args[0], args[1])
         text = text[1:]
+    
+    automat["alphabet"] = get_alphabet_from_automat(automat["automat"])
     return automat    
 
 def enter_automat(input_filename):
     return convert_text_to_automat(scan_file(input_filename))
 
 def draw_automat(automat, automat_filename, postfix_name = ""):
+    global global_counter
+
     automat_filepath = automat_filename.split('/')[:-1][0] + "/"
-    dot_filename = automat_filepath + postfix_name + ".dot"
-    picture_filename = automat_filepath + postfix_name + ".png"
+    dot_filename = automat_filepath + str(global_counter) + "_" + postfix_name + ".dot"
+    picture_filename = automat_filepath + str(global_counter) + "_" + postfix_name + ".png"
+    global_counter += 1
 
     create_file(dot_filename)
     print_automat(automat, dot_filename)
@@ -138,10 +155,12 @@ def print_automat(automat, filename):
     added_vertex = []
 
     start = automat["start"]
+    
     acceptance = automat["acceptance"]
     automat = automat["automat"]
 
     output_text = "digraph {\n"
+    print(start)
     output_text += "\tstart [style = \"invis\"]\n\tstart -> \"{start}\"\n".format(start=start)
 
     for key in automat.keys():

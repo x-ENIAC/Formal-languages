@@ -1,56 +1,55 @@
+from ast import copy_location
+from copy import copy
 from enum import auto
+from itertools import count
+from operator import index
 import re
 from io_handler import draw_automat, draw_automat
 
-def get_alphabet_from_automat(automat):
-    alphabet = []
-    for vertex in automat:
-        for transition, transition_to in automat[vertex]:
-            if transition not in alphabet:
-                alphabet.append(transition)
-    return alphabet
-
-def determinize_automat(automat):
-    # simplify_automat(automat)
-    # delete_epsilon(automat)
+def determinize_automat(automat, input_filename):
+    simplify_automat(automat)
+    delete_epsilon(automat, input_filename)
 
     start = automat["start"]
     acceptance = automat["acceptance"]
+    alphabet = automat["alphabet"]
     automat = automat["automat"]
 
-    new_automat = {"start": start, "acceptance": [], "automat": dict()}
-    new_acceptance = []
+    new_automat = {"start": start, "acceptance": [], "automat": dict(), "alphabet": alphabet}
+    new_acceptance = [i for i in acceptance]
 
-    alphabet = get_alphabet_from_automat(automat)
+    
     len_alphabet = len(alphabet)
 
     keys = list(automat.keys())
-    # print(keys)
 
     for vertex in keys: # перебираем все вершины
         if vertex in automat: # если это старая, уже существующая вершина
             transitions = automat[vertex]
+            print(vertex, transitions)
             all_transitions = [[] for i in range(len_alphabet)] # все переходы по всем буквам
-            for transition, transition_to in transitions:
+            for i in range(len(transitions)):
+                transition, transition_to = transitions[i]
                 index_of_letter = alphabet.index(transition)
                 all_transitions[index_of_letter].append(transition_to)
-            
             new_transitions = []
-            for vertex_transition in all_transitions: # сформируем новые переходы
+            for i in range(len(all_transitions)): # сформируем новые переходы
+                vertex_transition = all_transitions[i]
                 if len(vertex_transition) > 0:
                     new_vertex = ','.join(sorted(vertex_transition))
                     if new_vertex not in keys:
                         keys.append(new_vertex)
-                    index_of_letter = all_transitions.index(vertex_transition)
-                    new_transitions.append((alphabet[index_of_letter], new_vertex))
+                    new_transitions.append((alphabet[i], new_vertex))
             new_automat["automat"][vertex] = new_transitions # добавим в новый автомат
         else: # вершины не существует, она является чьей-то конкатенацией
             old_vertexes = vertex.split(',')
             new_transitions = [[] for i in range(len_alphabet)]
             for old_vertex in old_vertexes:
                 if old_vertex in automat:
-                    for letter, to in automat[old_vertex]:
-                        new_transitions[alphabet.index(letter)].append(to)
+                    for i in range(len(automat[old_vertex])):
+                        letter, to = automat[old_vertex][i]
+                        index_of_letter = alphabet.index(letter)
+                        new_transitions[index_of_letter].append(to)
                 if old_vertex in acceptance and vertex not in new_acceptance:
                     new_acceptance.append(vertex)
             new_transitions = [','.join(i) for i in new_transitions]
@@ -64,55 +63,117 @@ def determinize_automat(automat):
     new_automat["acceptance"] = new_acceptance
     return new_automat
 
-def remove_unattainable_vertexes(automat):
+def remove_unattainable_vertexes(automat): # удаляет недостижимые вершины
     start_vertex = automat["start"]
+    copy_automat = automat
+    automat = automat["automat"]
+
+    unattainable_vertexes = []
+    keys = list(automat.keys())
+    is_visited = [False for i in range(len(keys))]
+
+    
     vertex_queue = [start_vertex]
 
     for vertex in vertex_queue:
-        transitions = automat["automat"][vertex]
+        if vertex not in keys:
+            unattainable_vertexes.append(vertex)
+            continue
+        is_visited[keys.index(vertex)] = True
+        transitions = automat[vertex]
         for transition in transitions:
             if transition[1] != "" and transition[1] not in vertex_queue:
                 vertex_queue.append(transition[1])
+        
+        # print(is_visited)
+        # print([True for i in range(len(keys))])
+        # if is_visited != [True for i in range(len(keys))]:
+        #     for i in vertex_queue:
+        #         if i not in unattainable_vertexes:
+        #             unattainable_vertexes.append(i)
+        #     vertex_queue = []
 
-    unattainable_vertexes = []
-    keys = automat["automat"].keys()
+    keys = automat.keys()
 
     for vertex in keys:
         if vertex not in vertex_queue:
             unattainable_vertexes.append(vertex)
     
     for vertex in unattainable_vertexes:
-        del automat["automat"][vertex]
-    return automat
+        if vertex in automat:
+            del automat[vertex]
+    
+    keys = automat.keys()
+    
+    acceptance = copy_automat["acceptance"]
+    new_acceptance = []
+    for vertex in acceptance:
+        if vertex in keys:
+            new_acceptance.append(vertex)
+
+    copy_automat["acceptance"] = new_acceptance
+    copy_automat["automat"] = automat
+
+    return copy_automat
+
+def remove_vertexes_without_reachable_acceptance(automat):
+    copy_automat = automat
+    acceptance = automat["acceptance"]
+    automat = automat["automat"]
+    
+    vertexes = sorted(list(automat.keys()))
+    count_of_vertexes = len(vertexes)
+
+    acceptance_is_reachable = [False for i in range(count_of_vertexes)]
+
+    for i in range(count_of_vertexes):
+        is_visited = [False for i in range(count_of_vertexes)]
+        vertexes_queue = [vertexes[i]]
+
+        for vertex_from in vertexes_queue:
+            is_visited[vertexes.index(vertex_from)] = True
+            if vertex_from in acceptance:
+                acceptance_is_reachable[i] = True
+            transitions = automat[vertex_from]
+            for letter, vertex_to in transitions:
+                if vertex_to not in vertexes_queue:
+                    vertexes_queue.append(vertex_to)
+
+    print("acceptance_is_reachable:", acceptance_is_reachable)
+
+    for i in range(count_of_vertexes):
+        if not acceptance_is_reachable[i]:
+            del automat[vertexes[i]]
+
+    copy_automat["automat"] = automat
+    return copy_automat
+
+def remove_non_existent_vertexes_from_transitions(automat):
+    copy_automat = automat
+    automat = automat["automat"]
+    
+    vertexes = sorted(list(automat.keys()))
+
+    for vertex_to in vertexes:
+        transitions = automat[vertex_to]
+        count_transitions = len(transitions)
+        correct_transitions = []
+
+        for i in range(count_transitions):
+            # print(transitions[i])
+            if transitions[i][1] in vertexes:
+                correct_transitions.append(transitions[i])
+        
+        automat[vertex_to] = correct_transitions
+
+    copy_automat["automat"] = automat
+    return copy_automat
 
 def simplify_automat(automat):
-    automat = remove_unattainable_vertexes(automat)  
+    automat = remove_unattainable_vertexes(automat)  # убрали недостижимые
+    automat = remove_vertexes_without_reachable_acceptance(automat) # убрали те, из которых нельзя дойти до терминальной
+    automat = remove_non_existent_vertexes_from_transitions(automat)
 
-    count_of_vertexes = len(automat["automat"].keys())
-    is_something_change = False
-
-    for i in range(count_of_vertexes + 1):
-        is_something_change = False
-        deleted = []
-        new_automat = dict()
-
-        for vertex in automat["automat"]:
-            if len(automat["automat"][vertex]) == 0 and vertex not in automat["acceptance"]: # ищем недостижимые состояния
-                deleted.append(vertex)
-                is_something_change = True
-        if not is_something_change:
-            break
-        for vertex in automat["automat"]:
-            if vertex not in deleted:
-                new_automat[vertex] = automat["automat"][vertex]
-        print("deleted_vertex", deleted)
-        for deleted_vertex in deleted: # удаляем переходы в недостижимые состояния
-            for vertex in new_automat:
-                for transition in new_automat[vertex]:
-                    if deleted_vertex == transition[1] and transition[1] != automat["start"]:
-                        new_automat[vertex].remove(transition)
-        
-        automat["automat"] = new_automat
     return automat
 
 def delete_epsilon(automat, input_filename):
@@ -136,12 +197,12 @@ def delete_epsilon(automat, input_filename):
 
     automat = construct_epsilon_closure(automat, epsilon_queue)
 
-    draw_automat(automat, input_filename, "2_epsilon_closure")
+    draw_automat(automat, input_filename, "epsilon_closure")
 
     automat = collapse_epsilon_transitions(automat, epsilon_queue)
     automat = delete_epsilon_transitions(automat)
     
-    draw_automat(automat, input_filename, "3_delete_epsilon")
+    draw_automat(automat, input_filename, "delete_epsilon")
 
     return automat
 
@@ -193,5 +254,28 @@ def delete_epsilon_transitions(automat): # непосредственно уби
                 vertex_queue.append(trasition[1])
         automat[vertex] = new_transitions
     
+    copy_automat["automat"] = automat
+    return copy_automat
+
+def full_determinize(automat):
+    copy_automat = automat
+    alphabet = automat["alphabet"]
+    automat = automat["automat"]
+    
+    alphabet_size = len(alphabet)
+    automat["stock"] = [(i, "stock") for i in alphabet]
+    print(alphabet)
+    print(automat["stock"])
+
+    for vertex in automat:
+        transitions = automat[vertex]
+        if len(transitions) == alphabet_size:
+            continue
+        all_letters = [letter for letter, to in transitions]
+        
+        for letter in alphabet:
+            if letter not in all_letters:
+                automat[vertex].append((letter, "stock"))
+
     copy_automat["automat"] = automat
     return copy_automat

@@ -1,19 +1,24 @@
 DOA: v1
-Start: q3
+Start: q2
 Acceptance: q2 & q4
 --BEGIN--
+State: q0
+-> a q1
 State: q1
--> a q2
--> EPS q4
--> b q3
+-> b q2
 State: q2
 -> a q3
--> b q4
+-> a q4
 State: q3
--> EPS q1
--> b q3
+-> a q3
 State: q4
--> EPS q5
+-> a q5
 State: q5
+-> b q6
+State: q6
+-> a q7
+State: q7
+-> a q7
+State: q8
 -> b q6
 --END--
