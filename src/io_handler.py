@@ -1,5 +1,4 @@
 import os
-import numpy as np
 
 global_counter = 1
 
@@ -15,6 +14,16 @@ TRANSITION_CONSTANT = "->"
 
 
 def scan_file(filename):
+    '''
+    Считывает текст из файла
+
+    Parameters:
+        filename Имя файла
+
+    Returns:
+        text Текст, считанный из указанного файла
+    '''
+
     text = ""
     with open(filename, 'r') as file:
         text = file.readlines()
@@ -22,6 +31,18 @@ def scan_file(filename):
 
 
 def scan_category(text):
+    '''
+    Считывает категорию и её аргументы из текста (категориями являются
+    специальные слова такие, как State, Start, Acceptance, ->; аргументы
+    категории - это то, что написано в строке сразу после категории)
+
+    Parameters:
+        text Текст
+
+    Returns:
+        text Категория и её аргументы
+    '''
+
     answer = {"is_empty": True, "category": "", "args": ""}
     if len(text) == 0:
         return answer
@@ -33,16 +54,34 @@ def scan_category(text):
     return answer
 
 
-# Start: <args>
 def handle_start_args(args):
+    '''
+    Проверяет на корректность аргументы категории Start
+
+    Parameters:
+        args Список с аргументами
+
+    Returns:
+        Nothing
+    '''
+
     if len(args) == 0:
         raise Exception("Doesn't set the start vertex")
     if len(args) != 1:
         raise Exception("Lots of start vertex")
 
 
-# Acceptance: <args>
 def handle_acceptance_args(args):
+    '''
+    Проверяет на корректность аргументы категории Acceptance
+
+    Parameters:
+        arhs Строка с аргументами, разделенными знаком &
+
+    Returns:
+        real_args Список аргументов
+    '''
+
     real_args = []
     next_is_vertex = True
     for i in args:
@@ -58,23 +97,52 @@ def handle_acceptance_args(args):
     return real_args
 
 
-# State: <args>
 def handle_state_args(args):
+    '''
+    Проверяет на корректность аргументы категории State
+
+    Parameters:
+        args Список с аргументами
+
+    Returns:
+        Nothing
+    '''
+
     if len(args) != 1:
         raise Exception("Bad states")
 
 
-# -> <args>
 def handle_transition_args(args):
+    '''
+    Проверяет на корректность аргументы категории ->
+
+    Parameters:
+        args Список с аргументами
+
+    Returns:
+        Nothing
+    '''
     if len(args) != 2:
         raise Exception("Bad -> params")
 
 
 def set_transition(automat, transition_from, transition, transition_to):
+    '''
+    Добавляет в автомат новый переход
+
+    Parameters:
+        automat Переходы в автомате
+        transition_from Состояние, из которого совершается переход
+        transition Символ, по которому совершается переход
+        transition_to Состояние, в которое совершается переход
+
+    Returns:
+        answer_automat Множество переходов, содержащее новый переход
+    '''
+
     answer_automat = automat
 
     new_item = (transition, transition_to)
-    # print("\t\t\tset_transition:", new_item)
     if transition_from not in answer_automat.keys():
         answer_automat[transition_from] = [new_item]
     else:
@@ -86,6 +154,16 @@ def set_transition(automat, transition_from, transition, transition_to):
 
 
 def get_alphabet_from_automat(automat):
+    '''
+    По списку переходов получает алфавит
+
+    Parameters:
+        automat Список переходов
+
+    Returns:
+        alphabet Алфавит
+    '''
+
     alphabet = []
     for vertex in automat:
         for transition, vertex_to in automat[vertex]:
@@ -96,6 +174,16 @@ def get_alphabet_from_automat(automat):
 
 
 def convert_text_to_automat(text):
+    '''
+    Текст в формате .doa переводит в автомат
+
+    Parameters:
+        automat Текст
+
+    Returns:
+        alphabet Автомат
+    '''
+
     automat = ({"automat": dict(), "start": None, "acceptance": [],
                 "alphabet": []})
 
@@ -144,10 +232,31 @@ def convert_text_to_automat(text):
 
 
 def enter_automat(input_filename):
+    '''
+    Из указанного файла достаёт автомат
+
+    Parameters:
+        input_filename Имя файла, в котором описан автомат
+
+    Returns:
+        automat Автомат
+    '''
+
     return convert_text_to_automat(scan_file(input_filename))
 
 
 def draw_automat(automat, automat_filename, postfix_name=""):
+    '''
+    Рисует автомат
+
+    Parameters:
+        automat Автомат
+        automat_filename Имя файла, в котором был описан автомат
+
+    Returns:
+        automat Автомат
+    '''
+
     global global_counter
 
     automat_filepath = '/'.join(automat_filename.split('/')[:-1]) + '/'
@@ -163,10 +272,31 @@ def draw_automat(automat, automat_filename, postfix_name=""):
 
 
 def create_file(filename):
+    '''
+    Создаёт файл
+
+    Parameters:
+        filename Имя файла, который нужно создать
+
+    Returns:
+        Nothing
+    '''
+
     os.system("echo "" > {filename}".format(filename=filename))
 
 
 def print_automat(automat, filename):
+    '''
+    Выводит автомат в файл в формате .dot
+
+    Parameters:
+        automat Автомат
+        filename Имя файла, в который будет выведен автомат
+
+    Returns:
+        Nothing
+    '''
+
     added_vertex = []
 
     start = automat["start"]
@@ -217,6 +347,17 @@ def print_automat(automat, filename):
 
 
 def draw_picture(dot_filename, picture_filename):
+    '''
+    По заданному .dot файлу создаёт изображение
+
+    Parameters:
+        dot_filename Имя файла с расширением .dot
+        picture_filename Имя изображения, которое будет создано
+
+    Returns:
+        Nothing
+    '''
+
     os.system("dot -Tpng {dot_filename} -o {picture_filename}".format(
         dot_filename=dot_filename,
         picture_filename=picture_filename
@@ -224,6 +365,17 @@ def draw_picture(dot_filename, picture_filename):
 
 
 def make_doa(automat, filename):
+    '''
+    Записывает автомат в файл формала .doa
+
+    Parameters:
+        automat Автомат
+        filename Имя файла, в который будет записан автомат
+
+    Returns:
+        Nothing
+    '''
+
     text = "{start} {state_name}\n".format(
         start=START_CONSTANT,
         state_name=automat["start"]
@@ -257,6 +409,17 @@ def make_doa(automat, filename):
 
 
 def check_files_contents(filename1, filename2):
+    '''
+    Сравнивает содержимое двух файлов (необходимо для тестирования)
+
+    Parameters:
+        filename1 Имя первого файла
+        filename2 Имя второго файла
+
+    Returns:
+        is_equal True, если содержимое фвйлов совпадает, иначе false
+    '''
+
     text1 = ""
     text2 = ""
 
@@ -267,7 +430,8 @@ def check_files_contents(filename1, filename2):
 
     for i in range(len(text1)):
         if text1[i] != text2[i]:
-            print("i = ", i, text1[i], text2[i])
-            print()
+            print("Find difference! Position i = ", i)
+            print("First file has", text1[i], "on i position")
+            print("Second file has", text2[i], "on i position")
             return False
     return True

@@ -2,7 +2,18 @@ from determinize_automat import determinize_automat, simplify_automat
 from io_handler import draw_automat
 
 
-def minimize_automat(automat, input_filename):
+def minimize_automat(automat):
+    '''
+    Минимизирует ПДКА алгоритмом, разобранном на семинарах и лекциях (с
+    использованием классов эквивалентности состояний)
+
+    Parameters:
+        automat ПДКА
+
+    Returns:
+        automat Минимальный ПДКА
+    '''
+
     copy_automat = automat
     acceptance = automat["acceptance"]
     alphabet = automat["alphabet"]
@@ -56,6 +67,17 @@ def minimize_automat(automat, input_filename):
 
 
 def check_two_classes_on_equal(class_1, class_2):
+    '''
+    Проверяет два списка классов эквивалентности состояний на идентичность
+
+    Parameters:
+        class_1 Первый список классов эквивалентности состояний
+        class_2 Второй список классов эквивалентности состояний
+
+    Returns:
+        is_equal True, если списки идентачны; False, если нет
+    '''
+
     copy_class_1 = sorted(class_1)
     copy_class_2 = sorted(class_2)
 
@@ -65,6 +87,21 @@ def check_two_classes_on_equal(class_1, class_2):
 
 
 def create_automat_by_classes(automat, transitioins, classes):
+    '''
+    По классам эквивалентности вершин создаёт автомат
+
+    Parameters:
+        automat Старый автомат, на основе которого
+                сформировали классы эквивалентности
+        transitioins Переход из одного состояния в другие по каждому
+                     символу алфавита
+        classes Классы эквивалентности состояний
+
+    Returns:
+        automat Автомат, построенный на основе классов эквивалентности
+                и переходов между ними
+    '''
+
     old_start, old_acceptance = automat["start"], automat["acceptance"]
     keys = sorted(list(automat["automat"].keys()))
     old_start_class = classes[keys.index(old_start)]
@@ -100,7 +137,7 @@ def create_automat_by_classes(automat, transitioins, classes):
             vertex_to = "q{k}".format(k=new_transitions[i][j])
             if vertex_from not in new_automat:
                 new_automat[vertex_from] = [(letter, vertex_to)]
-            else:
+            elif (letter, vertex_to) not in new_automat[vertex_from]:
                 new_automat[vertex_from].append((letter, vertex_to))
         if old_start_class == new_classes[i] and new_start is None:
             new_start = vertex_from
@@ -116,6 +153,20 @@ def create_automat_by_classes(automat, transitioins, classes):
 
 
 def remove_repetitions_from_transitions_and_classes(transitions, classes):
+    '''
+    Удаляет дубликаты из списка классов эквивалентности (т.е. эквивалентные
+    состояния)
+
+    Parameters:
+        transitions Переход из одного состояния в другие по каждому
+                     символу алфавита
+        classes Классы эквивалентности состояний
+
+    Returns:
+        new_transitions Переходы, соответствующие new_classes
+        new_classes Неэквивалентные состояния
+    '''
+
     new_transitions = [transitions[0]]
     new_classes = [classes[0]]
     count_classes = len(classes)

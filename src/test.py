@@ -1,4 +1,5 @@
-from io_handler import enter_automat, draw_automat, make_doa
+import pytest
+from io_handler import enter_automat, draw_automat, handle_start_args, make_doa
 from io_handler import check_files_contents
 from determinize_automat import remove_unattainable_vertexes
 from determinize_automat import remove_vertexes_without_reachable_acceptance
@@ -132,7 +133,7 @@ def test_minimize_automat():
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
 
-    new_automat = minimize_automat(automat, filename)
+    new_automat = minimize_automat(automat)
     draw_automat(new_automat, filename, "minimize_automat")
     make_doa(new_automat, test_filename_answer)
 
@@ -155,3 +156,11 @@ def test_remove_repetitions_from_transitions_and_classes():
 
     assert (sorted(correct_classes) == sorted(new_classes) and
             sorted(correct_transitions) == sorted(new_transitions))
+
+
+def test_check_files_contents():
+    name = "check_files_contents"
+    filename1 = "test/{name}/1.doa".format(name=name)
+    filename2 = "test/{name}/2.doa".format(name=name)
+
+    assert not check_files_contents(filename1, filename2)

@@ -2,6 +2,18 @@ from io_handler import draw_automat, draw_automat
 
 
 def determinize_automat(automat, input_filename):
+    '''
+    Из НКА делает ДКА.
+
+    Parameters:
+        automat НКА
+        input_filename Имя файла, который содержит описание НКА
+            (необходимо для промежуточной отрисовки автоматов)
+
+    Returns:
+        automat ДКА
+    '''
+
     automat = simplify_automat(automat)
     automat = delete_epsilon(automat, input_filename)
 
@@ -69,7 +81,17 @@ def determinize_automat(automat, input_filename):
     return new_automat
 
 
-def remove_unattainable_vertexes(automat):  # удаляет недостижимые вершины
+def remove_unattainable_vertexes(automat):
+    '''
+    Удаляет из автомата недостижимые состояния
+
+    Parameters:
+        automat Автомат
+
+    Returns:
+        automat Автомат, не содержащий недостижимых состояний
+    '''
+
     start_vertex = automat["start"]
     copy_automat = automat
     automat = automat["automat"]
@@ -115,6 +137,18 @@ def remove_unattainable_vertexes(automat):  # удаляет недостижи�
 
 
 def remove_vertexes_without_reachable_acceptance(automat):
+    '''
+    Удаляет из автомата состояния, из которых недостижимы
+        терминальные состояния
+
+    Parameters:
+        automat Автомат
+
+    Returns:
+        automat Автомат, не содержащий состояний, из которых нельзя
+                прийти в какое-либо терминальное состояние
+    '''
+
     copy_automat = automat
     acceptance = automat["acceptance"]
     automat = automat["automat"]
@@ -147,6 +181,18 @@ def remove_vertexes_without_reachable_acceptance(automat):
 
 
 def remove_non_existent_vertexes_from_transitions(automat):
+    '''
+    Удаляет из автомата переходы, ведущие или исходящие из
+    несуществующих состояний
+
+    Parameters:
+        automat Автомат
+
+    Returns:
+        automat Автомат без переходов, которые содержат
+                несуществующие состояния
+    '''
+
     copy_automat = automat
     automat = automat["automat"]
     old_acceptance = copy_automat["acceptance"]
@@ -184,9 +230,20 @@ def remove_non_existent_vertexes_from_transitions(automat):
 
 
 def simplify_automat(automat):
-    # убираем недостижимые
+    '''
+    Упрощает автомат при помощи трёх действий:
+    - удаляет недостижимые состояния
+    - удаляет те состояния, из которых нельзя завершиться
+    - удаляет переходы, в которых содержатся несуществующие состояния
+
+    Parameters:
+        automat Автомат
+
+    Returns:
+        automat Упрощённый автомат
+    '''
+
     automat = remove_unattainable_vertexes(automat)
-    # убираем те, из которых нельзя дойти до терминальной
     automat = remove_vertexes_without_reachable_acceptance(automat)
     automat = remove_non_existent_vertexes_from_transitions(automat)
 
@@ -194,6 +251,23 @@ def simplify_automat(automat):
 
 
 def delete_epsilon(automat, input_filename):
+    '''
+    Удаляет эпсилон переходы по следующему алгоритму:
+    - делается эпсилон-замыкание автомата (т.е. если существовали переходы
+        q1->eps->q2 и q2->eps->q3, то добавляется переход q1->eps->q3);
+    - далее рассматриваются переходы вида q1->eps->q2, q2->a->q3, где
+        a - произвольный символ алфавита. К автомату добавляется переход
+        q1->a->q3;
+    - после чего из авомата непосредственно убираются эпсилон-переходы
+
+    Parameters:
+        automat Автомат
+        input_filename Имя файла, который содержит описание НКА
+            (необходимо для промежуточной отрисовки автоматов)
+    Returns:
+        automat Автомат, не содержащий эпсилон-переходов
+    '''
+
     epsilon_queue = []
     vertex_queue = [automat["start"]]
     acceptance = automat["acceptance"]
@@ -225,9 +299,20 @@ def delete_epsilon(automat, input_filename):
     return automat
 
 
-# 1 ->eps-> 2 and 2 ->eps->3 => 1->eps->3
-# epsilon_queue: from ->eps->to: [('q3', 'q1'), ('q4', 'q5')]
 def construct_epsilon_closure(automat, epsilon_queue):
+    '''
+    Делает эпсилон-замыкание автомата: если существовали переходы
+    q1->eps->q2 и q2->eps->q3, то добавляется переход q1->eps->q3);
+
+    Parameters:
+        automat Автомат
+        epsilon_queue Список эпсилон-переходов (если был переход q3 ->eps->q1,
+                      то в списке будет храниться ('q3', 'q1'))
+
+    Returns:
+        automat Автомат с эпсилон-замыканием
+    '''
+
     acceptance = automat["acceptance"]
     copy_automat = automat
     automat = automat["automat"]
@@ -239,7 +324,7 @@ def construct_epsilon_closure(automat, epsilon_queue):
             # q0 ->eps-> q1, q1 - acceptance => q0 - acceptance
             if vertex_from not in acceptance:
                 acceptance.append(vertex_from)
-            transitions = automat[vertex_to]  # переходы из q1
+            transitions = automat[vertex_to]
             for transition in transitions:
                 new_eps_item = (vertex_from, transition[1])
                 if (transition[0] == "EPS" and
@@ -254,6 +339,19 @@ def construct_epsilon_closure(automat, epsilon_queue):
 
 
 def collapse_epsilon_transitions(automat, epsilon_queue):
+    '''
+    Делает следующее: рассматривает переходы вида q1->eps->q2, q2->a->q3, где
+    a - произвольный символ алфавита. К автомату добавляет переход
+    q1->a->q3
+
+    Parameters:
+        automat Автомат
+        epsilon_queue Список эпсилон-переходов
+
+    Returns:
+        automat Автомат с дополнительными переходами
+    '''
+
     copy_automat = automat
     automat = automat["automat"]
 
@@ -268,13 +366,22 @@ def collapse_epsilon_transitions(automat, epsilon_queue):
     return copy_automat
 
 
-# непосредственно убирает сами эпсилон-переходы
 def delete_epsilon_transitions(automat):
+    '''
+    Удаляет эпсилон-переходы из автомата
+
+    Parameters:
+        automat Автомат
+
+    Returns:
+        automat Автомат, не содержащий эпсилон-переходов
+    '''
+
     vertex_queue = [automat["start"]]
     copy_automat = automat
     automat = automat["automat"]
 
-    for vertex in vertex_queue:  # выпишем все эпсилон-переходы
+    for vertex in vertex_queue:
         trasitions = automat[vertex]
         new_transitions = []
         for trasition in trasitions:
@@ -289,11 +396,20 @@ def delete_epsilon_transitions(automat):
 
 
 def full_determinize(automat):
+    '''
+    Из ДКА делает полный ДКА путем добавления стоковой вершины
+
+    Parameters:
+        automat ДКА
+
+    Returns:
+        automat Полный ДКА
+    '''
+
     copy_automat = automat
     alphabet = automat["alphabet"]
     automat = automat["automat"]
 
-    alphabet_size = len(alphabet)
     automat["stock"] = [(i, "stock") for i in alphabet]
     states = sorted(list(automat.keys()))
 

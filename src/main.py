@@ -6,10 +6,6 @@ from minimize_automat import minimize_automat
 
 
 def main(argv):  # pragma: no cover
-    if len(argv) != 2:
-        print("Bad params")
-        sys.exit(1)
-
     input_filename = argv[1]
     automat = enter_automat(input_filename)
     print("nka:", automat)
@@ -27,7 +23,7 @@ def main(argv):  # pragma: no cover
 
     # print('----------------------------------------------------')
 
-    mpdka_automat = minimize_automat(pdka_automat, input_filename)
+    mpdka_automat = minimize_automat(pdka_automat)
     print("mpdka_automat:", mpdka_automat)
     draw_automat(mpdka_automat, input_filename, "mpdka")
 
@@ -37,4 +33,8 @@ def main(argv):  # pragma: no cover
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Bad params. Please set the filename with automat description")
+        sys.exit(1)
+
     main(sys.argv)

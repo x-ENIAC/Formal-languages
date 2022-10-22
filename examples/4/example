@@ -1,0 +1,17 @@
+DOA: v1
+Start: q0
+Acceptance: qs
+--BEGIN--
+State: q0
+-> a qs
+-> b q1
+State: q1
+-> a q1
+-> b q2
+State: q2
+-> a qs
+-> b q1
+State: qs
+-> a qs
+-> b qs
+--END--
