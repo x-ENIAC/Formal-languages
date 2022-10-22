@@ -1,10 +1,13 @@
 import sys
 from io_handler import enter_automat, draw_automat
 from determinize_automat import determinize_automat, full_determinize
+from determinize_automat import simplify_automat
 from minimize_automat import minimize_automat
 
-def main(argv, argc):  # pragma: no cover
+
+def main(argv):  # pragma: no cover
     if len(argv) != 2:
+        print("Bad params")
         sys.exit(1)
 
     input_filename = argv[1]
@@ -28,5 +31,10 @@ def main(argv, argc):  # pragma: no cover
     print("mpdka_automat:", mpdka_automat)
     draw_automat(mpdka_automat, input_filename, "mpdka")
 
+    simple_mpdka_automat = simplify_automat(mpdka_automat)
+    print("simple_mpdka_automat:", simple_mpdka_automat)
+    draw_automat(simple_mpdka_automat, input_filename, "simple_mpdka")
+
+
 if __name__ == "__main__":
-    main(sys.argv, sys.argc)
+    main(sys.argv)

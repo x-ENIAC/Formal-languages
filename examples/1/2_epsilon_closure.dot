@@ -3,5 +3,5 @@ digraph {
 	start -> "q2"
 	"q2" [shape=doublecircle]
 	"q4" [shape=doublecircle]
-	"q2" -> "q4" [label = "a"]
-}
+	"q2" -> "q4"
+[label = "a"]}

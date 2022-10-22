@@ -3,17 +3,17 @@ digraph {
 	start -> "q0"
 	"q0"
 	"q1"
-	"q0" -> "q1" [label = "b"]
-	"qf" [shape=doublecircle]
-	"q0" -> "qf" [label = "EPS"]
-	"q4"
-	"q1" -> "q4" [label = "a"]
-	"q2"
-	"q1" -> "q2" [label = "EPS"]
-	"q4" -> "q1" [label = "b"]
-	"q2" -> "q1" [label = "a"]
-	"q3"
-	"q2" -> "q3" [label = "b"]
-	"q2" -> "qf" [label = "EPS"]
-	"q3" -> "q1" [label = "a"]
-}
+	"q0" -> "q1"
+[label = "b"]	"qf" [shape=doublecircle]
+	"q0" -> "qf"
+[label = "EPS"]	"q4"
+	"q1" -> "q4"
+[label = "a"]	"q2"
+	"q1" -> "q2"
+[label = "EPS"]	"q4" -> "q1"
+[label = "b"]	"q2" -> "q1"
+[label = "a"]	"q3"
+	"q2" -> "q3"
+[label = "b"]	"q2" -> "qf"
+[label = "EPS"]	"q3" -> "q1"
+[label = "a"]}

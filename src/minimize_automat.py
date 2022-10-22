@@ -1,6 +1,7 @@
 from determinize_automat import determinize_automat, simplify_automat
 from io_handler import draw_automat
 
+
 def minimize_automat(automat, input_filename):
     copy_automat = automat
     acceptance = automat["acceptance"]
@@ -14,15 +15,16 @@ def minimize_automat(automat, input_filename):
 
     previous_classes = [0 for i in range(count_of_vertexes)]
 
-    for i in range(count_of_vertexes): # строим нулевой класс эквивалентности
+    for i in range(count_of_vertexes):  # строим нулевой класс эквивалентности
         if vertexes[i] in acceptance:
             previous_classes[i] = 1
-    
-    # print("previous_classes", previous_classes)
-    transitioins = [[0 for i in range(len_alphabet)] for i in range(count_of_vertexes)]
-    
-    for _ in range(count_of_vertexes + 1): # максимум может формировать классы N раз
-        transitioins = [[0 for i in range(len_alphabet)] for i in range(count_of_vertexes)]
+
+    transitioins = ([[0 for i in range(len_alphabet)]
+                    for i in range(count_of_vertexes)])
+
+    for _ in range(count_of_vertexes + 1):
+        transitioins = ([[0 for i in range(len_alphabet)]
+                        for i in range(count_of_vertexes)])
         now_classes = [0 for i in range(count_of_vertexes)]
 
         for i in range(count_of_vertexes):
@@ -30,26 +32,28 @@ def minimize_automat(automat, input_filename):
             for letter, vertex_to in automat[vertex]:
                 letter_index = alphabet.index(letter)
                 vertex_to_index = vertexes.index(vertex_to)
-                transitioins[i][letter_index] = previous_classes[vertex_to_index]
-        
-        # print("transitioins:", transitioins)
+                transitioins[i][letter_index] = (
+                    previous_classes[vertex_to_index]
+                )
 
         existed_classes = []
-        for i in range(count_of_vertexes):  # формируем новый класс эквивалентности
+
+        # формируем новый класс эквивалентности
+        for i in range(count_of_vertexes):
             now_class = [previous_classes[i]] + transitioins[i]
             if now_class not in existed_classes:
                 existed_classes.append(now_class)
             now_classes[i] = existed_classes.index(now_class)
-        
+
         if check_two_classes_on_equal(previous_classes, now_classes):
-            # print("FIND!!! Step:", _)
-            automat = create_automat_by_classes(copy_automat, transitioins, now_classes)
+            automat = create_automat_by_classes(copy_automat, transitioins,
+                                                now_classes)
             return automat
 
-        # print("now_classes:", now_classes)
         previous_classes = now_classes.copy()
 
     raise Exception("Something wrong in minimize")
+
 
 def check_two_classes_on_equal(class_1, class_2):
     copy_class_1 = sorted(class_1)
@@ -59,13 +63,17 @@ def check_two_classes_on_equal(class_1, class_2):
         return True
     return False
 
+
 def create_automat_by_classes(automat, transitioins, classes):
     old_start, old_acceptance = automat["start"], automat["acceptance"]
     keys = sorted(list(automat["automat"].keys()))
     old_start_class = classes[keys.index(old_start)]
     old_acceptance_classes = [classes[keys.index(i)] for i in old_acceptance]
 
-    new_transitions, new_classes = remove_repetitions_from_transitions_and_classes(transitioins, classes)
+    new_transitions, new_classes = (
+        remove_repetitions_from_transitions_and_classes(transitioins, classes)
+    )
+
     count_of_classes = len(new_classes)
 
     alphabet = automat["alphabet"]
@@ -79,9 +87,11 @@ def create_automat_by_classes(automat, transitioins, classes):
     for i in range(len_alphabet):
         vertex_to = "q{j}".format(j=new_transitions[0][i])
         new_automat[zero_state_string].append((alphabet[i], vertex_to))
-    
-    if old_start_class == new_classes[0]: # если нулевая вершина была стартовой
+
+    if old_start_class == new_classes[0]:
         new_start = zero_state_string
+    if new_classes[0] in old_acceptance_classes:
+        new_acceptance.append(zero_state_string)
 
     for i in range(1, count_of_classes):
         vertex_from = "q{j}".format(j=new_classes[i])
@@ -92,14 +102,18 @@ def create_automat_by_classes(automat, transitioins, classes):
                 new_automat[vertex_from] = [(letter, vertex_to)]
             else:
                 new_automat[vertex_from].append((letter, vertex_to))
-        if old_start_class == new_classes[i] and new_start == None:
+        if old_start_class == new_classes[i] and new_start is None:
             new_start = vertex_from
         if new_classes[i] in old_acceptance_classes:
             new_acceptance.append(vertex_from)
 
-    new_automat = {"start": new_start, "acceptance": new_acceptance, "automat": new_automat, "alphabet": alphabet}
-    
+    new_automat = {"automat": new_automat}
+    new_automat["alphabet"] = alphabet
+    new_automat["acceptance"] = new_acceptance
+    new_automat["start"] = new_start
+
     return new_automat
+
 
 def remove_repetitions_from_transitions_and_classes(transitions, classes):
     new_transitions = [transitions[0]]

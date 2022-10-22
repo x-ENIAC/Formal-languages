@@ -8,39 +8,44 @@ from determinize_automat import simplify_automat, determinize_automat
 from minimize_automat import minimize_automat
 from minimize_automat import remove_repetitions_from_transitions_and_classes
 
+
 def test_remove_unattainable_vertexes():
-    filename = "test/remove_unattainable_vertexes/1.doa"
-    test_filename_answer = "test/remove_unattainable_vertexes/answer.doa"
-    filename_real_answer = "test/remove_unattainable_vertexes/real_answer.doa"
+    name = "remove_unattainable_vertexes"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
 
     new_automat = remove_unattainable_vertexes(automat)
-    draw_automat(new_automat, filename, "remove_unattainable_vertexes")
+    draw_automat(new_automat, filename, name)
     make_doa(new_automat, test_filename_answer)
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
 
 def test_remove_vertexes_without_reachable_acceptance():
-    filename = "test/remove_vertexes_without_reachable_acceptance/1.doa"
-    test_filename_answer = "test/remove_vertexes_without_reachable_acceptance/answer.doa"
-    filename_real_answer = "test/remove_vertexes_without_reachable_acceptance/real_answer.doa"
+    name = "remove_vertexes_without_reachable_acceptance"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
 
     new_automat = remove_vertexes_without_reachable_acceptance(automat)
-    draw_automat(new_automat, filename, "remove_vertexes_without_reachable_acceptance")
+    draw_automat(new_automat, filename, name)
     make_doa(new_automat, test_filename_answer)
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
+
 def test_remove_non_existent_vertexes_from_transitions():
-    filename = "test/remove_non_existent_vertexes_from_transitions/1.doa"
-    test_filename_answer = "test/remove_non_existent_vertexes_from_transitions/answer.doa"
-    filename_real_answer = "test/remove_non_existent_vertexes_from_transitions/real_answer.doa"
+    name = "remove_non_existent_vertexes_from_transitions"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
@@ -48,15 +53,17 @@ def test_remove_non_existent_vertexes_from_transitions():
     del automat["automat"]["q4"]
 
     new_automat = remove_non_existent_vertexes_from_transitions(automat)
-    draw_automat(new_automat, filename, "remove_non_existent_vertexes_from_transitions")
+    draw_automat(new_automat, filename, name)
     make_doa(new_automat, test_filename_answer)
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
+
 def test_delete_epsilon():
-    filename = "test/delete_epsilon/1.doa"
-    test_filename_answer = "test/delete_epsilon/answer.doa"
-    filename_real_answer = "test/delete_epsilon/real_answer.doa"
+    name = "delete_epsilon"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
@@ -67,10 +74,12 @@ def test_delete_epsilon():
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
+
 def test_full_determinize():
-    filename = "test/full_determinize/1.doa"
-    test_filename_answer = "test/full_determinize/answer.doa"
-    filename_real_answer = "test/full_determinize/real_answer.doa"
+    name = "full_determinize"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
@@ -81,10 +90,12 @@ def test_full_determinize():
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
+
 def test_simplify_automat():
-    filename = "test/simplify_automat/1.doa"
-    test_filename_answer = "test/simplify_automat/answer.doa"
-    filename_real_answer = "test/simplify_automat/real_answer.doa"
+    name = "simplify_automat"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
@@ -95,10 +106,12 @@ def test_simplify_automat():
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
+
 def test_determinize_automat():
-    filename = "test/determinize_automat/1.doa"
-    test_filename_answer = "test/determinize_automat/answer.doa"
-    filename_real_answer = "test/determinize_automat/real_answer.doa"
+    name = "determinize_automat"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
@@ -109,10 +122,12 @@ def test_determinize_automat():
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
 
+
 def test_minimize_automat():
-    filename = "test/minimize_automat/1.doa"
-    test_filename_answer = "test/minimize_automat/answer.doa"
-    filename_real_answer = "test/minimize_automat/real_answer.doa"
+    name = "minimize_automat"
+    filename = "test/{name}/1.doa".format(name=name)
+    test_filename_answer = "test/{name}/answer.doa".format(name=name)
+    filename_real_answer = "test/{name}/real_answer.doa".format(name=name)
 
     automat = enter_automat(filename)
     draw_automat(automat, filename, "automat")
@@ -122,6 +137,7 @@ def test_minimize_automat():
     make_doa(new_automat, test_filename_answer)
 
     assert check_files_contents(filename_real_answer, test_filename_answer)
+
 
 def test_remove_repetitions_from_transitions_and_classes():
     transitions = [[4, 0], [4, 0], [2, 3], [2, 3], [3, 3],
@@ -136,6 +152,6 @@ def test_remove_repetitions_from_transitions_and_classes():
             transitions, classes
         )
     )
-    
+
     assert (sorted(correct_classes) == sorted(new_classes) and
             sorted(correct_transitions) == sorted(new_transitions))
