@@ -1,0 +1,7 @@
+Start: q2
+Acceptance: q2 & q4
+--BEGIN--
+State: q2
+-> a q4
+State: q4
+--END--

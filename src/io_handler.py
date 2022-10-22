@@ -1,9 +1,5 @@
-from ast import arg
-from audioop import add
 import os
-from turtle import dot, st
 import numpy as np
-from globals import *
 
 global_counter = 1
 
@@ -84,8 +80,8 @@ def set_transition(automat, transition_from, transition, transition_to):
 def get_alphabet_from_automat(automat):
     alphabet = []
     for vertex in automat:
-        for transition, transition_to in automat[vertex]:
-            if transition not in alphabet:
+        for transition, vertex_to in automat[vertex]:
+            if transition not in alphabet and transition != "EPS":
                 alphabet.append(transition)
     alphabet.sort()
     return alphabet
@@ -112,7 +108,7 @@ def convert_text_to_automat(text):
         raise Exception("Bad acceptance vertexes")
     if automat["start"] == None:
         raise Exception("Bad start vertex")
-    
+        
     # scan all after --BEGIN--
     continue_scan = True
     now_state = None
@@ -139,7 +135,7 @@ def enter_automat(input_filename):
 def draw_automat(automat, automat_filename, postfix_name = ""):
     global global_counter
 
-    automat_filepath = automat_filename.split('/')[:-1][0] + "/"
+    automat_filepath = '/'.join(automat_filename.split('/')[:-1]) + '/' #automat_filename.split('/')[:-1] + "/"
     dot_filename = automat_filepath + str(global_counter) + "_" + postfix_name + ".dot"
     picture_filename = automat_filepath + str(global_counter) + "_" + postfix_name + ".png"
     global_counter += 1
@@ -160,7 +156,6 @@ def print_automat(automat, filename):
     automat = automat["automat"]
 
     output_text = "digraph {\n"
-    print(start)
     output_text += "\tstart [style = \"invis\"]\n\tstart -> \"{start}\"\n".format(start=start)
 
     for key in automat.keys():
@@ -181,7 +176,10 @@ def print_automat(automat, filename):
                     line += "\t" + "\"{vertex}\"".format(vertex=transition_to) + "\n"
                 else:
                     line += "\t" + "\"{vertex}\" [shape=doublecircle]".format(vertex=transition_to) + "\n"
-            line += "\t" + "\"{vertex_from}\" -> \"{vertex_to}\" [label = \"{letter}\"]".format(vertex_from=key, vertex_to=transition_to, letter=transition) + "\n"
+            line += "\t" + "\"{vertex_from}\" -> \"{vertex_to}\" [label = \"{letter}\"]".format(
+                vertex_from=key,
+                vertex_to=transition_to,
+                letter=transition) + "\n"
 
         output_text += line
 
@@ -192,3 +190,47 @@ def print_automat(automat, filename):
 
 def draw_picture(dot_filename, picture_filename):
     os.system("dot -Tpng {dot_filename} -o {picture_filename}".format(dot_filename=dot_filename, picture_filename=picture_filename))
+
+def make_doa(automat, filename):
+    text = "{start} {state_name}\n".format(
+        start=START_CONSTANT,
+        state_name=automat["start"]
+    )
+
+    text += "{acceptance} {states}\n".format(
+        acceptance=ACCEPTANCE_CONSTANT,
+        states=' & '.join(automat["acceptance"])
+    )
+
+    text += "{begin}\n".format(begin=BEGIN_CONSTANT)
+    automat = automat["automat"]
+    
+    for vertex in automat:
+        transitions = automat[vertex]
+        text += "{state} {vertex}\n".format(state=STATE_CONSTANT, vertex=vertex)
+        for letter, vertex_to in transitions:
+            text += "{transition} {letter} {state}\n".format(
+                transition=TRANSITION_CONSTANT,
+                letter=letter,
+                state=vertex_to
+            )
+    text += "{end}\n".format(end=END_CONSTANT)
+
+    with open(filename, "w") as file:
+        file.write(text)
+
+def check_files_contents(filename1, filename2):
+    text1 = ""
+    text2 = ""
+
+    with open(filename1, "r") as file:
+        text1 = file.read().strip("\n")
+    with open(filename2, "r") as file:
+        text2 = file.read().strip("\n")
+
+    for i in range(len(text1)):
+        if text1[i] != text2[i]:
+            print("i = ", i, text1[i], text2[i])
+            print()
+            return False
+    return True

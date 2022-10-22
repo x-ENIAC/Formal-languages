@@ -1,14 +1,13 @@
-from ast import copy_location
 from copy import copy
-from enum import auto
-from itertools import count
-from operator import index
-import re
+from hashlib import new
+from os import access
 from io_handler import draw_automat, draw_automat
 
 def determinize_automat(automat, input_filename):
-    simplify_automat(automat)
-    delete_epsilon(automat, input_filename)
+    automat = simplify_automat(automat)
+    automat = delete_epsilon(automat, input_filename)
+    # return automat
+
 
     start = automat["start"]
     acceptance = automat["acceptance"]
@@ -24,9 +23,10 @@ def determinize_automat(automat, input_filename):
     keys = list(automat.keys())
 
     for vertex in keys: # перебираем все вершины
+        # print("!!! NOW !!!", vertex)
         if vertex in automat: # если это старая, уже существующая вершина
             transitions = automat[vertex]
-            print(vertex, transitions)
+            # print(vertex, transitions)
             all_transitions = [[] for i in range(len_alphabet)] # все переходы по всем буквам
             for i in range(len(transitions)):
                 transition, transition_to = transitions[i]
@@ -37,6 +37,7 @@ def determinize_automat(automat, input_filename):
                 vertex_transition = all_transitions[i]
                 if len(vertex_transition) > 0:
                     new_vertex = ','.join(sorted(vertex_transition))
+                    # print("NEW VERTEX:", new_vertex)
                     if new_vertex not in keys:
                         keys.append(new_vertex)
                     new_transitions.append((alphabet[i], new_vertex))
@@ -49,10 +50,15 @@ def determinize_automat(automat, input_filename):
                     for i in range(len(automat[old_vertex])):
                         letter, to = automat[old_vertex][i]
                         index_of_letter = alphabet.index(letter)
-                        new_transitions[index_of_letter].append(to)
+                        if to not in new_transitions[index_of_letter]: # во избежание q1,q1,q1,q1,q2
+                            new_transitions[index_of_letter].append(to)
                 if old_vertex in acceptance and vertex not in new_acceptance:
                     new_acceptance.append(vertex)
-            new_transitions = [','.join(i) for i in new_transitions]
+            new_transitions = [','.join(sorted(i)) for i in new_transitions]
+            for new_vertex in new_transitions:
+                if new_vertex not in keys:
+                    keys.append(new_vertex)
+
             new_transitions = [(alphabet[i], new_transitions[i]) for i in range(len(new_transitions))]
             new_transitions_without_garbage = []
             for i in new_transitions:
@@ -61,6 +67,7 @@ def determinize_automat(automat, input_filename):
             new_automat["automat"][vertex] = new_transitions_without_garbage
     
     new_automat["acceptance"] = new_acceptance
+    new_automat = simplify_automat(new_automat)
     return new_automat
 
 def remove_unattainable_vertexes(automat): # удаляет недостижимые вершины
@@ -139,34 +146,48 @@ def remove_vertexes_without_reachable_acceptance(automat):
                 if vertex_to not in vertexes_queue:
                     vertexes_queue.append(vertex_to)
 
-    print("acceptance_is_reachable:", acceptance_is_reachable)
-
     for i in range(count_of_vertexes):
         if not acceptance_is_reachable[i]:
             del automat[vertexes[i]]
 
     copy_automat["automat"] = automat
+    copy_automat = remove_non_existent_vertexes_from_transitions(copy_automat)
     return copy_automat
 
 def remove_non_existent_vertexes_from_transitions(automat):
     copy_automat = automat
     automat = automat["automat"]
+    old_acceptance = copy_automat["acceptance"]
+    new_acceptance = []
     
     vertexes = sorted(list(automat.keys()))
+    is_reachable = [False for i in vertexes]
+    is_reachable[vertexes.index(copy_automat["start"])] = True
 
-    for vertex_to in vertexes:
-        transitions = automat[vertex_to]
+    for vertex in vertexes:
+        transitions = automat[vertex]
         count_transitions = len(transitions)
         correct_transitions = []
 
         for i in range(count_transitions):
-            # print(transitions[i])
-            if transitions[i][1] in vertexes:
+            vertexZz = transitions[i][1]
+            if vertexZz in vertexes:
                 correct_transitions.append(transitions[i])
+                vertex_index = vertexes.index(vertexZz)
+                is_reachable[vertex_index] = True
         
-        automat[vertex_to] = correct_transitions
+        vertex_index = vertexes.index(vertex)
+        if len(correct_transitions) > 0 or is_reachable[vertex_index] == True:
+            automat[vertex] = correct_transitions
+        else:
+            del automat[vertex]
+    
+    for vertex in old_acceptance:
+        if vertex in automat:
+            new_acceptance.append(vertex)
 
     copy_automat["automat"] = automat
+    copy_automat["acceptance"] = new_acceptance
     return copy_automat
 
 def simplify_automat(automat):
@@ -201,12 +222,14 @@ def delete_epsilon(automat, input_filename):
 
     automat = collapse_epsilon_transitions(automat, epsilon_queue)
     automat = delete_epsilon_transitions(automat)
+    automat = remove_non_existent_vertexes_from_transitions(automat)
     
     draw_automat(automat, input_filename, "delete_epsilon")
 
     return automat
 
 def construct_epsilon_closure(automat, epsilon_queue): # 1 ->eps-> 2 and 2 ->eps->3 => 1->eps->3
+    # epsilon_queue: from ->eps->to: [('q3', 'q1'), ('q4', 'q5')]
     acceptance = automat["acceptance"]
     copy_automat = automat
     automat = automat["automat"]
@@ -214,7 +237,10 @@ def construct_epsilon_closure(automat, epsilon_queue): # 1 ->eps-> 2 and 2 ->eps
     is_something_change = True
     while is_something_change:
         is_something_change = False
-        for vertex_from, vertex_to in epsilon_queue: # [('q3', 'q1'), ('q4', 'q5')]
+        for vertex_from, vertex_to in epsilon_queue:
+            # q0 ->eps-> q1, q1 - acceptance => q0 - acceptance
+            if vertex_from not in acceptance: 
+                acceptance.append(vertex_from)
             transitions = automat[vertex_to] # переходы из q1
             for transition in transitions:
                 new_eps_item = (vertex_from, transition[1])
@@ -224,6 +250,7 @@ def construct_epsilon_closure(automat, epsilon_queue): # 1 ->eps-> 2 and 2 ->eps
                     automat[vertex_from].append(("EPS", transition[1]))
     
     copy_automat["automat"] = automat
+    copy_automat["acceptance"] = acceptance
     return copy_automat
 
 def collapse_epsilon_transitions(automat, epsilon_queue):
@@ -264,13 +291,10 @@ def full_determinize(automat):
     
     alphabet_size = len(alphabet)
     automat["stock"] = [(i, "stock") for i in alphabet]
-    print(alphabet)
-    print(automat["stock"])
+    states = sorted(list(automat.keys()))
 
-    for vertex in automat:
+    for vertex in states:
         transitions = automat[vertex]
-        if len(transitions) == alphabet_size:
-            continue
         all_letters = [letter for letter, to in transitions]
         
         for letter in alphabet:

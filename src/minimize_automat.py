@@ -1,7 +1,3 @@
-from enum import auto
-from hashlib import new
-from operator import le
-import re
 from determinize_automat import determinize_automat, simplify_automat
 from io_handler import draw_automat
 
@@ -22,7 +18,7 @@ def minimize_automat(automat, input_filename):
         if vertexes[i] in acceptance:
             previous_classes[i] = 1
     
-    print("previous_classes", previous_classes)
+    # print("previous_classes", previous_classes)
     transitioins = [[0 for i in range(len_alphabet)] for i in range(count_of_vertexes)]
     
     for _ in range(count_of_vertexes + 1): # максимум может формировать классы N раз
@@ -36,7 +32,7 @@ def minimize_automat(automat, input_filename):
                 vertex_to_index = vertexes.index(vertex_to)
                 transitioins[i][letter_index] = previous_classes[vertex_to_index]
         
-        print("transitioins:", transitioins)
+        # print("transitioins:", transitioins)
 
         existed_classes = []
         for i in range(count_of_vertexes):  # формируем новый класс эквивалентности
@@ -46,11 +42,11 @@ def minimize_automat(automat, input_filename):
             now_classes[i] = existed_classes.index(now_class)
         
         if check_two_classes_on_equal(previous_classes, now_classes):
-            print("FIND!!! Step:", _)
+            # print("FIND!!! Step:", _)
             automat = create_automat_by_classes(copy_automat, transitioins, now_classes)
             return automat
 
-        print("now_classes:", now_classes)
+        # print("now_classes:", now_classes)
         previous_classes = now_classes.copy()
 
     raise Exception("Something wrong in minimize")
@@ -101,7 +97,7 @@ def create_automat_by_classes(automat, transitioins, classes):
         if new_classes[i] in old_acceptance_classes:
             new_acceptance.append(vertex_from)
 
-    new_automat = {"start": new_start, "acceptance": new_acceptance, "automat": new_automat}
+    new_automat = {"start": new_start, "acceptance": new_acceptance, "automat": new_automat, "alphabet": alphabet}
     
     return new_automat
 
@@ -117,24 +113,3 @@ def remove_repetitions_from_transitions_and_classes(transitions, classes):
         new_transitions.append(transitions[i])
 
     return new_transitions, new_classes
-
-
-def reverse_automat(automat, input_filename):
-    automat = simplify_automat(automat)
-
-    new_automat = dict() 
-    # {"automat": dict(), "start": automat["acceptance"], "acceptance": automat["start"]}
-    print(automat)
-
-    for vertex in automat["automat"]:
-        transitions = automat["automat"][vertex]
-        for letter, vertex_to in transitions:
-            if letter != "" and vertex_to != "":
-                if vertex_to not in new_automat:
-                    new_automat[vertex_to] = [(letter, vertex)]
-                else:
-                    new_automat[vertex_to].append((letter, vertex))
-
-    new_automat = {"automat": new_automat, "start": automat["acceptance"], "acceptance": automat["start"]}
-    print(new_automat)
-    return new_automat

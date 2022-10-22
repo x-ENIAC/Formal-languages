@@ -1,0 +1,19 @@
+Start: q0
+Acceptance: q3
+--BEGIN--
+State: q0
+-> a q4
+-> b q0
+State: q1
+-> a q2
+-> b q3
+State: q2
+-> a q3
+-> b q3
+State: q3
+-> a q3
+-> b q3
+State: q4
+-> a q1
+-> b q1
+--END--
