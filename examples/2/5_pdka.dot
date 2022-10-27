@@ -1,0 +1,28 @@
+digraph {
+	start [style = "invis"]
+	start -> "qa"
+	"qa"
+	"qh"
+	"qa" -> "qh"
+[label = "a"]	"qb"
+	"qa" -> "qb"
+[label = "b"]	"qc"
+	"qh" -> "qc"
+[label = "a"]	"qh" -> "qc"
+[label = "b"]	"qb" -> "qh"
+[label = "a"]	"qb" -> "qa"
+[label = "b"]	"qe"
+	"qc" -> "qe"
+[label = "a"]	"qf" [shape=doublecircle]
+	"qc" -> "qf"
+[label = "b"]	"qe" -> "qf"
+[label = "a"]	"qg" [shape=doublecircle]
+	"qe" -> "qg"
+[label = "b"]	"qf" -> "qf"
+[label = "a"]	"qf" -> "qf"
+[label = "b"]	"qg" -> "qg"
+[label = "a"]	"qg" -> "qf"
+[label = "b"]	"stock"
+	"stock" -> "stock"
+[label = "a"]	"stock" -> "stock"
+[label = "b"]}

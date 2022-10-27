@@ -1,0 +1,28 @@
+Start: q0
+Acceptance: qf
+--BEGIN--
+State: q0
+-> b q1
+-> EPS qf
+-> a stock
+State: q1
+-> a q4
+-> EPS q2
+-> b stock
+State: qf
+-> a stock
+-> b stock
+State: q4
+-> b q1
+-> a stock
+State: q2
+-> a q1
+-> b q3
+-> EPS qf
+State: q3
+-> a q1
+-> b stock
+State: stock
+-> a stock
+-> b stock
+--END--
