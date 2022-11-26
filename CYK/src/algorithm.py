@@ -195,3 +195,26 @@ def check_is_grammar_contains_word(grammar, word):
     if start in answer:
         return True
     return False
+
+
+def check_grammar_on_chomsky_normal_form(grammar):
+    grammar_rules = grammar["grammar"]
+    start = grammar["start"]
+    keys = grammar_rules.keys()
+
+    for key in keys:
+        rules = grammar_rules[key]
+        for rule in rules:
+            # A -> b
+            if len(rule) == 1 and rule.islower():
+                continue
+
+            # A -> BC
+            if len(rule) == 2 and rule[0].isupper() and rule[1].isupper():
+                continue
+
+            # S -> EPS
+            if key == start and rule == EPSILON:
+                continue
+            return False
+    return True

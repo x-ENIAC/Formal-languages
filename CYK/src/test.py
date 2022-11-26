@@ -4,7 +4,7 @@ from algorithm import initialize_dp
 from algorithm import get_rules_without_terminals
 from algorithm import handle_one_letter
 from algorithm import check_is_grammar_contains_word
-
+from algorithm import check_grammar_on_chomsky_normal_form
 from io_handler import enter_grammar
 
 
@@ -23,6 +23,9 @@ def test_initialize_dp():
 
 def generate_standart_grammar(grammar_type="without_EPS"):
     grammar = dict()
+    terminals = []
+    non_terminals = []
+    start = 'S'
 
     if grammar_type == "without_EPS":
         grammar['S'] = ['AB']
@@ -31,10 +34,12 @@ def generate_standart_grammar(grammar_type="without_EPS"):
         grammar['C'] = ['AC', 'a']
         terminals = ['b', 'c', 'a']
         non_terminals = ['S', 'A', 'B', 'C']
-        start = 'S'
-
-        grammar = {"grammar": grammar, "terminals": terminals,
-                   "non_terminals": non_terminals, "start": start}
+    elif grammar_type == "not_chomsky_form":
+        grammar['S'] = ['AB']
+        grammar['A'] = ['BBW', 'bW']
+        grammar['B'] = ['CA', 'EPS']
+        terminals = ['b']
+        non_terminals = ['S', 'A', 'B', 'C', 'W']
     else:
         grammar['S'] = ['AB', 'EPS']
         grammar['A'] = ['a']
@@ -43,8 +48,8 @@ def generate_standart_grammar(grammar_type="without_EPS"):
         non_terminals = ['S', 'A', 'B']
         start = 'S'
 
-        grammar = {"grammar": grammar, "terminals": terminals,
-                   "non_terminals": non_terminals, "start": start}
+    grammar = {"grammar": grammar, "terminals": terminals,
+               "non_terminals": non_terminals, "start": start}
     return grammar
 
 
@@ -120,3 +125,14 @@ def test_enter_grammar():
                    }
 
     assert answer == real_answer
+
+
+@pytest.mark.parametrize('grammar_type,answer', (
+                                         [["not_chomsky_form", False],
+                                          ["without_EPS", True],
+                                          ["with_EPS", True]]
+                                        ))
+def test_check_grammar_on_chomsky_normal_form(grammar_type, answer):
+    grammar = generate_standart_grammar(grammar_type)
+
+    assert answer == check_grammar_on_chomsky_normal_form(grammar)

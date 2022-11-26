@@ -14,5 +14,5 @@
 
 Текущее покрытие тестами:
 
-![Покрытие тестами](https://sun9-35.userapi.com/impg/pDXzk9B8Fy65jOb5sZWfL0NrDi5WnpEo76Z5lQ/6IdJr0dFihA.jpg?size=561x277&quality=96&sign=507502b80bfce3c9380c5ffa56cb6a49&type=album)
+![Покрытие тестами](https://sun9-51.userapi.com/impg/PYAB5rLB2KBP-1UuC5J1IMJ7ZPRSOL2kl3U7fA/FrZPKTEWpRQ.jpg?size=498x282&quality=96&sign=1eca688372b3bf4423d53e2e1ef8506b&type=album)
 

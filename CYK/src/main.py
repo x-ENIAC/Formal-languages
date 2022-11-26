@@ -2,6 +2,7 @@ import sys  # pragma: no cover
 
 from io_handler import enter_grammar  # pragma: no cover
 from algorithm import check_is_grammar_contains_word  # pragma: no cover
+from algorithm import check_grammar_on_chomsky_normal_form
 
 
 def main(argv):  # pragma: no cover
@@ -11,6 +12,11 @@ def main(argv):  # pragma: no cover
     else:
         word = argv[2]
     grammar = enter_grammar(input_filename)
+
+    if not check_grammar_on_chomsky_normal_form(grammar):
+        print("The grammar isn't in Chomsky normal form")
+        sys.exit(-1)
+
     print(grammar)
 
     if check_is_grammar_contains_word(grammar, word):
@@ -27,6 +33,6 @@ if __name__ == "__main__":  # pragma: no cover
         )
 
         print(help_message)
-        sys.exit(1)
+        sys.exit(-1)
 
     main(sys.argv)
