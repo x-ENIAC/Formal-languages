@@ -1,8 +1,7 @@
 import sys  # pragma: no cover
 
 from io_handler import enter_grammar  # pragma: no cover
-from algorithm import check_is_grammar_contains_word  # pragma: no cover
-from algorithm import check_grammar_on_chomsky_normal_form
+from algorithm import CYK  # pragma: no cover
 
 
 def main(argv):  # pragma: no cover
@@ -13,13 +12,15 @@ def main(argv):  # pragma: no cover
         word = argv[2]
     grammar = enter_grammar(input_filename)
 
-    if not check_grammar_on_chomsky_normal_form(grammar):
+    if not grammar.check_grammar_on_chomsky_normal_form():
         print("The grammar isn't in Chomsky normal form")
         sys.exit(-1)
 
-    print(grammar)
+    grammar.print()
 
-    if check_is_grammar_contains_word(grammar, word):
+    cyk = CYK(grammar)
+
+    if cyk.check_is_grammar_contains_word(word):
         print("The word is contained in the grammar")
     else:
         print("The word isn't contained in the grammar")

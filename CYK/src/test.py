@@ -1,138 +1,191 @@
-import pytest
+import unittest
 
-from algorithm import initialize_dp
-from algorithm import get_rules_without_terminals
-from algorithm import handle_one_letter
-from algorithm import check_is_grammar_contains_word
-from algorithm import check_grammar_on_chomsky_normal_form
+
+from grammar import Grammar
+from algorithm import CYK
 from io_handler import enter_grammar
 
 
-def test_initialize_dp():
-    word = "abc"
-    real_array = [[[] for i in range(len(word))] for i in range(len(word))]
-
-    array = initialize_dp(word)
-
-    for i in range(len(real_array)):
-        for j in range(len(real_array[i])):
-            if real_array[i][j] != array[i][j]:
-                assert False
-    assert True
-
-
-def generate_standart_grammar(grammar_type="without_EPS"):
-    grammar = dict()
+def generate_standart_grammar(grammar_type="without_EPS") -> Grammar:
+    grammar_rules = dict()
     terminals = []
     non_terminals = []
     start = 'S'
 
     if grammar_type == "without_EPS":
-        grammar['S'] = ['AB']
-        grammar['A'] = ['BB', 'b']
-        grammar['B'] = ['CA', 'c']
-        grammar['C'] = ['AC', 'a']
+        grammar_rules['S'] = ['AB']
+        grammar_rules['A'] = ['BB', 'b']
+        grammar_rules['B'] = ['CA', 'c']
+        grammar_rules['C'] = ['AC', 'a']
         terminals = ['b', 'c', 'a']
         non_terminals = ['S', 'A', 'B', 'C']
     elif grammar_type == "not_chomsky_form":
-        grammar['S'] = ['AB']
-        grammar['A'] = ['BBW', 'bW']
-        grammar['B'] = ['CA', 'EPS']
+        grammar_rules['S'] = ['AB']
+        grammar_rules['A'] = ['BBW', 'bW']
+        grammar_rules['B'] = ['CA', 'EPS']
         terminals = ['b']
         non_terminals = ['S', 'A', 'B', 'C', 'W']
-    else:
-        grammar['S'] = ['AB', 'EPS']
-        grammar['A'] = ['a']
-        grammar['B'] = ['b']
-        terminals = ['a', 'b']
-        non_terminals = ['S', 'A', 'B']
-        start = 'S'
 
-    grammar = {"grammar": grammar, "terminals": terminals,
-               "non_terminals": non_terminals, "start": start}
+    grammar = Grammar(grammar_rules, terminals,
+                      non_terminals, start)
     return grammar
 
 
-def test_get_rules_without_terminals():
-    grammar = generate_standart_grammar()
-    real_answer = {'S': ['AB'], 'A': ['BB'], 'B': ['CA'], 'C': ['AC']}
-    answer = get_rules_without_terminals(grammar)
+class TestCYK(unittest.TestCase):
+    def test_initialize_dp(self):
+        grammar = generate_standart_grammar()
+        cyk = CYK(grammar)
 
-    keys = list(answer.keys())
-    for key in keys:
-        if key not in real_answer:
+        word = "abc"
+        real_array = [[[] for i in range(len(word))] for i in range(len(word))]
+
+        cyk.word = word
+        cyk.initialize_dp()
+        array = cyk.dp
+
+        for i in range(len(real_array)):
+            for j in range(len(real_array[i])):
+                if real_array[i][j] != array[i][j]:
+                    assert False
+        assert True
+
+    def test_handle_word(self):
+        word = "ababc"
+        grammar = generate_standart_grammar()
+        real_answer = [[['C'], ['A'], ['C'], ['A'], ['B']],
+                       [[], [], [], [], []],
+                       [[], [], [], [], []],
+                       [[], [], [], [], []],
+                       [[], [], [], [], []]]
+
+        cyk = CYK(grammar)
+        cyk.word = word
+        cyk.initialize_dp()
+        cyk.handle_one_letter()
+        answer = cyk.dp.copy()
+
+        if len(answer) != len(real_answer):
             assert False
-        del answer[key]
-        del real_answer[key]
+        if len(answer[0]) != len(real_answer[0]):
+            assert False
 
-    if len(real_answer) > 0:
-        assert False
-    assert True
+        for i in range(len(answer)):
+            for j in range(len(answer[i])):
+                if answer[i][j] != real_answer[i][j]:
+                    assert False
+        assert True
+
+    def test_check_is_grammar_contains_word_not_empty_word(self):
+        grammar = generate_standart_grammar("without_EPS")
+        word = "ababc"
+        answer = True
+        print(word)
+
+        cyk = CYK(grammar)
+
+        assert answer == cyk.check_is_grammar_contains_word(word)
+
+    def test_check_is_grammar_contains_word_empty_word(self):
+        grammar = generate_standart_grammar("without_EPS")
+        word = ""
+        answer = False
+        print(word)
+
+        cyk = CYK(grammar)
+
+        assert answer == cyk.check_is_grammar_contains_word(word)
 
 
-def test_handle_word():
-    word = "ababc"
-    grammar = generate_standart_grammar()
-    real_answer = [[['C'], ['A'], ['C'], ['A'], ['B']],
-                   [[], [], [], [], []],
-                   [[], [], [], [], []],
-                   [[], [], [], [], []],
-                   [[], [], [], [], []]]
+class TestGrammar(unittest.TestCase):
+    def test_get_rules_without_terminals(self):
+        grammar = generate_standart_grammar()
+        real_answer = {'S': ['AB'], 'A': ['BB'], 'B': ['CA'], 'C': ['AC']}
+        answer = grammar.get_rules_without_terminals()
 
-    dp = initialize_dp(word)
-    answer = handle_one_letter(grammar, word, dp)
-
-    if len(answer) != len(real_answer):
-        assert False
-    if len(answer[0]) != len(real_answer[0]):
-        assert False
-
-    for i in range(len(answer)):
-        for j in range(len(answer[i])):
-            if answer[i][j] != real_answer[i][j]:
+        keys = list(answer.keys())
+        for key in keys:
+            if key not in real_answer:
                 assert False
-    assert True
+            del answer[key]
+            del real_answer[key]
 
+        if len(real_answer) > 0:
+            assert False
+        assert True
 
-@pytest.mark.parametrize('grammar_type,word,answer', (
-                                         [["without_EPS", "ababc", True],
-                                          ["without_EPS", "bab", True],
-                                          ["without_EPS", "", False],
-                                          ["with_EPS", "ab", True],
-                                          ["with_EPS", "a", False],
-                                          ["with_EPS", "", True]]
-                                        ))
-def test_check_is_grammar_contains_word(grammar_type, word, answer):
-    grammar = generate_standart_grammar(grammar_type)
-    print(word)
+    def test_check_grammar_on_chomsky_normal_form_not_chomsky_form(self):
+        grammar = generate_standart_grammar("not_chomsky_form")
 
-    assert answer == check_is_grammar_contains_word(grammar, word)
+        assert not grammar.check_grammar_on_chomsky_normal_form()
 
+    def test_check_grammar_on_chomsky_normal_form_is_chomsky_form(self):
+        grammar = generate_standart_grammar("without_EPS")
 
-def test_enter_grammar():
-    input_filename = "../examples/grammar.txt"
-    answer = enter_grammar(input_filename)
+        assert not grammar.check_grammar_on_chomsky_normal_form()
 
-    real_answer = {'grammar': {
+    def test_enter_grammar_1(self):
+        input_filename = "../examples/grammar.txt"
+        answer = enter_grammar(input_filename)
+
+        real_grammar_rules = {
                                 'S': ['AB'],
                                 'A': ['BB', 'b'],
                                 'B': ['CA', 'c'],
                                 'C': ['AC', 'a']
-                            },
-                   'terminals': ['b', 'c', 'a'],
-                   'non_terminals': ['S', 'A', 'B', 'C'],
-                   'start': 'S'
-                   }
+                            }
+        real_non_terminals = ['S', 'A', 'B', 'C']
+        real_terminals = ['b', 'c', 'a']
+        real_start = 'S'
+        real_grammar = Grammar(real_grammar_rules,
+                               real_terminals,
+                               real_non_terminals,
+                               real_start)
 
-    assert answer == real_answer
+        assert answer.is_equal(real_grammar)
 
+    def test_enter_grammar_2(self):
+        input_filename = "../examples/grammar2.txt"
+        answer = enter_grammar(input_filename)
 
-@pytest.mark.parametrize('grammar_type,answer', (
-                                         [["not_chomsky_form", False],
-                                          ["without_EPS", True],
-                                          ["with_EPS", True]]
-                                        ))
-def test_check_grammar_on_chomsky_normal_form(grammar_type, answer):
-    grammar = generate_standart_grammar(grammar_type)
+        real_grammar_rules = {
+                                'S': ['AB', "EPS"],
+                                'A': ['a'],
+                                'B': ['b']
+                            }
+        real_non_terminals = ['S', 'A', 'B']
+        real_terminals = ['b', 'a']
+        real_start = 'S'
+        real_grammar = Grammar(real_grammar_rules,
+                               real_terminals,
+                               real_non_terminals,
+                               real_start)
 
-    assert answer == check_grammar_on_chomsky_normal_form(grammar)
+        assert answer.is_equal(real_grammar)
+
+    def test_is_equal_not_equal_terminals(self):
+        grammar = generate_standart_grammar()
+
+        real_grammar_rules = {'S': ["EPS"]}
+        real_non_terminals = ['S']
+        real_terminals = []
+        real_start = 'S'
+        real_grammar = Grammar(real_grammar_rules,
+                               real_terminals,
+                               real_non_terminals,
+                               real_start)
+
+        assert not grammar.is_equal(real_grammar)
+
+    def test_is_equal_not_equal_rules(self):
+        grammar = generate_standart_grammar()
+
+        real_grammar_rules = {'S': ["AB", "EPS"], 'A': ["a"], 'B': []}
+        real_non_terminals = ['S', 'A', 'B']
+        real_terminals = ['b', 'a']
+        real_start = 'S'
+        real_grammar = Grammar(real_grammar_rules,
+                               real_terminals,
+                               real_non_terminals,
+                               real_start)
+
+        assert not grammar.is_equal(real_grammar)
