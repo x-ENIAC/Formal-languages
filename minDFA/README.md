@@ -12,5 +12,5 @@ Test coverage can be seen by typing `py.test test.py --cov=. --cov-report=html` 
 
 Current test coverage:
 
-![Test coverage](https://github.com/x-ENIAC/Formal-languages/blob/master/mpdka/test_coverage.jpg)
+![Test coverage](https://github.com/x-ENIAC/Formal-languages/blob/master/minDFA/test_coverage.jpg)
 
