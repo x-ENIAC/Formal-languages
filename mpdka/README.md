@@ -1,16 +1,16 @@
-# Построение ДКА и МПДКА по НКА
+# Construction of DFA and minimun full DFA by NFA
 
-## Запуск
+## Run
 
-Необходимые пакеты: pytest-cov
+Required packages: pytest-cov
 
-Запуск: `python3 main.py <file>`. Например, `python3 main.py ../examples/3/example.doa`. Примеры можно увидеть в папке examples.
+Run: `python3 main.py <file>`. For example, `python3 main.py ../examples/3/example.doa`. Examples can be seen in the examples/ folder.
 
-## Покрытие тестами
+## test coverage
 
-Покрытие тестами можно увидеть, введя в терминал команду `py.test test.py --cov=. --cov-report=html`, находясь в папке `src`. Будет сгенерирован отчет в html-формате (для просмотра нужно открыть `src/htmlcov/index.html` в браузере).
+Test coverage can be seen by typing `py.test test.py --cov=. --cov-report=html` while in the `src` folder. An html report will be generated (you need to open `src/htmlcov/index.html` in your browser to view it).v
 
-Текущее покрытие тестами:
+Current test coverage:
 
-![Покрытие тестами](https://sun9-49.userapi.com/impg/GN4hJ3ami0Uj8nSesYuqmkAIXtc_spThNwy1tA/eHNMPTe8ruE.jpg?size=608x302&quality=96&sign=5f19f8b82f7e6b191b7c19abe1f0ac79&type=album)
+![Test coverage](https://sun9-49.userapi.com/impg/GN4hJ3ami0Uj8nSesYuqmkAIXtc_spThNwy1tA/eHNMPTe8ruE.jpg?size=608x302&quality=96&sign=5f19f8b82f7e6b191b7c19abe1f0ac79&type=album)
 

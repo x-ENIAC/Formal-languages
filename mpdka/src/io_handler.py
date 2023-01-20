@@ -15,13 +15,13 @@ TRANSITION_CONSTANT = "->"
 
 def scan_file(filename):
     '''
-    Считывает текст из файла
+    Reads text from a file
 
     Parameters:
-        filename Имя файла
+        filename Filename
 
     Returns:
-        text Текст, считанный из указанного файла
+        text Text from file
     '''
 
     text = ""
@@ -32,15 +32,15 @@ def scan_file(filename):
 
 def scan_category(text):
     '''
-    Считывает категорию и её аргументы из текста (категориями являются
-    специальные слова такие, как State, Start, Acceptance, ->; аргументы
-    категории - это то, что написано в строке сразу после категории)
+    Reads a category and its arguments from text (categories are
+    special words such as State, Start, Acceptance, ->; arguments
+    categories is what is written on the line immediately after the category)
 
     Parameters:
-        text Текст
+        text Text
 
     Returns:
-        text Категория и её аргументы
+        text Category and its arguments
     '''
 
     answer = {"is_empty": True, "category": "", "args": ""}
@@ -56,10 +56,10 @@ def scan_category(text):
 
 def handle_start_args(args):
     '''
-    Проверяет на корректность аргументы категории Start
+    Validates the arguments of the Start category
 
     Parameters:
-        args Список с аргументами
+        args List with arguments
 
     Returns:
         Nothing
@@ -73,13 +73,13 @@ def handle_start_args(args):
 
 def handle_acceptance_args(args):
     '''
-    Проверяет на корректность аргументы категории Acceptance
+    Validates the arguments of the Acceptance category
 
     Parameters:
-        arhs Строка с аргументами, разделенными знаком &
+        arhs String with arguments separated by &
 
     Returns:
-        real_args Список аргументов
+        real_args List of arguments
     '''
 
     real_args = []
@@ -99,10 +99,10 @@ def handle_acceptance_args(args):
 
 def handle_state_args(args):
     '''
-    Проверяет на корректность аргументы категории State
+    Validates the arguments of the State category
 
     Parameters:
-        args Список с аргументами
+        args List with arguments
 
     Returns:
         Nothing
@@ -114,10 +114,10 @@ def handle_state_args(args):
 
 def handle_transition_args(args):
     '''
-    Проверяет на корректность аргументы категории ->
+    Validates the arguments of the -> category
 
     Parameters:
-        args Список с аргументами
+        args List with arguments
 
     Returns:
         Nothing
@@ -128,16 +128,16 @@ def handle_transition_args(args):
 
 def set_transition(automat, transition_from, transition, transition_to):
     '''
-    Добавляет в автомат новый переход
+    Adds a new transition to the automat
 
     Parameters:
-        automat Переходы в автомате
-        transition_from Состояние, из которого совершается переход
-        transition Символ, по которому совершается переход
-        transition_to Состояние, в которое совершается переход
+        automat Automat transitions
+        transition_from The state from which the transition is made
+        transition The character on which the transition is made
+        transition_to The state to which the transition is made
 
     Returns:
-        answer_automat Множество переходов, содержащее новый переход
+        answer_automat A set of transitions containing a new transition
     '''
 
     answer_automat = automat
@@ -155,13 +155,13 @@ def set_transition(automat, transition_from, transition, transition_to):
 
 def get_alphabet_from_automat(automat):
     '''
-    По списку переходов получает алфавит
+    Gets the alphabet from the jump list
 
     Parameters:
-        automat Список переходов
+        automat Jump List
 
     Returns:
-        alphabet Алфавит
+        alphabet Alphabet
     '''
 
     alphabet = []
@@ -175,13 +175,13 @@ def get_alphabet_from_automat(automat):
 
 def convert_text_to_automat(text):
     '''
-    Текст в формате .doa переводит в автомат
+    Text in .doa format translates into automat
 
     Parameters:
-        automat Текст
+        text Text
 
     Returns:
-        alphabet Автомат
+        automat Automat
     '''
 
     automat = ({"automat": dict(), "start": None, "acceptance": [],
@@ -233,13 +233,13 @@ def convert_text_to_automat(text):
 
 def enter_automat(input_filename):
     '''
-    Из указанного файла достаёт автомат
+    From the specified file gets the machine
 
     Parameters:
-        input_filename Имя файла, в котором описан автомат
+        input_filename The name of the file that describes the machine
 
     Returns:
-        automat Автомат
+        automat Automat
     '''
 
     return convert_text_to_automat(scan_file(input_filename))
@@ -247,14 +247,15 @@ def enter_automat(input_filename):
 
 def draw_automat(automat, automat_filename, postfix_name=""):
     '''
-    Рисует автомат
+    Draw the automat
 
     Parameters:
-        automat Автомат
-        automat_filename Имя файла, в котором был описан автомат
+        automat Automat
+        automat_filename The name of the file in which the machine
+                         was described
 
     Returns:
-        automat Автомат
+        automat Automat
     '''
 
     global global_counter
@@ -273,10 +274,10 @@ def draw_automat(automat, automat_filename, postfix_name=""):
 
 def create_file(filename):
     '''
-    Создаёт файл
+    Creates file
 
     Parameters:
-        filename Имя файла, который нужно создать
+        filename Filename
 
     Returns:
         Nothing
@@ -287,11 +288,11 @@ def create_file(filename):
 
 def print_automat(automat, filename):
     '''
-    Выводит автомат в файл в формате .dot
+    Outputs the automaton to a file in .dot format
 
     Parameters:
-        automat Автомат
-        filename Имя файла, в который будет выведен автомат
+        automat Automat
+        filename The name of the file where the automaton will be output
 
     Returns:
         Nothing
@@ -348,11 +349,11 @@ def print_automat(automat, filename):
 
 def draw_picture(dot_filename, picture_filename):
     '''
-    По заданному .dot файлу создаёт изображение
+    Creates an image from a given .dot file
 
     Parameters:
-        dot_filename Имя файла с расширением .dot
-        picture_filename Имя изображения, которое будет создано
+        dot_filename File name with .dot extension
+        picture_filename The name of the image to be created
 
     Returns:
         Nothing
@@ -366,11 +367,11 @@ def draw_picture(dot_filename, picture_filename):
 
 def make_doa(automat, filename):
     '''
-    Записывает автомат в файл формала .doa
+    Writes the automaton to a .doa formal file
 
     Parameters:
-        automat Автомат
-        filename Имя файла, в который будет записан автомат
+        automat Automat
+        filename The name of the file to which the automaton will be written.
 
     Returns:
         Nothing
@@ -410,14 +411,14 @@ def make_doa(automat, filename):
 
 def check_files_contents(filename1, filename2):
     '''
-    Сравнивает содержимое двух файлов (необходимо для тестирования)
+    Compares the contents of two files (required for testing)
 
     Parameters:
-        filename1 Имя первого файла
-        filename2 Имя второго файла
+        filename1 Name of the first file
+        filename2 Name of the second file
 
     Returns:
-        is_equal True, если содержимое фвйлов совпадает, иначе false
+        is_equal True if the contents of the files match, otherwise false
     '''
 
     text1 = ""

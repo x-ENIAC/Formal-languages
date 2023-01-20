@@ -144,15 +144,15 @@ class Early:
 
     def check_is_grammar_contains_word(self, word: str) -> bool:
         '''
-        Запускает алгоритм Эрли. Делает scan (чтение очередной буквы в слове),
-        затем запускает все возможные predict (раскрытие нетерминала) и
-        complete ("поднятие наверх"). Ситуации, обрабатываемые на i-ой итерации
-        алгоритма, записываются в таблицу situation_table в i-ый столбец.
+        Runs the Early algorithm. Makes a scan (reading the next letter in a word),
+        then runs all possible predict (non-terminal expansion) and
+        complete ("raising up"). Situations processed at the i-th iteration
+        algorithms are written to the situation_table in the i-th column.
 
-        Стартовая конфигурация: S' → .S, 0
+        Start configuration: S' → .S, 0
 
-        Алгоритм утверждает, что слово принадлежит языку, который порождён
-        грамматикой, если в последнем столбце находится конфигурация
+        The algorithm claims that the word belongs to the language that is generated
+        grammar if the last column contains configuration
         S' → S., 0
         '''
         self.word = word

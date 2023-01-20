@@ -4,14 +4,13 @@ from io_handler import draw_automat
 
 def minimize_automat(automat):
     '''
-    Минимизирует ПДКА алгоритмом, разобранном на семинарах и лекциях (с
-    использованием классов эквивалентности состояний)
+    Minimizes full DFA by the algorithm with using state equivalence classes
 
     Parameters:
-        automat ПДКА
+        automat Full DFA
 
     Returns:
-        automat Минимальный ПДКА
+        automat Minimum full DFA
     '''
 
     copy_automat = automat
@@ -26,7 +25,7 @@ def minimize_automat(automat):
 
     previous_classes = [0 for i in range(count_of_vertexes)]
 
-    for i in range(count_of_vertexes):  # строим нулевой класс эквивалентности
+    for i in range(count_of_vertexes):  # build a null equivalence class
         if vertexes[i] in acceptance:
             previous_classes[i] = 1
 
@@ -49,7 +48,7 @@ def minimize_automat(automat):
 
         existed_classes = []
 
-        # формируем новый класс эквивалентности
+        # form a new equivalence class
         for i in range(count_of_vertexes):
             now_class = [previous_classes[i]] + transitioins[i]
             if now_class not in existed_classes:
@@ -68,14 +67,14 @@ def minimize_automat(automat):
 
 def check_two_classes_on_equal(class_1, class_2):
     '''
-    Проверяет два списка классов эквивалентности состояний на идентичность
+    Tests two lists of state equivalence classes for identity
 
     Parameters:
-        class_1 Первый список классов эквивалентности состояний
-        class_2 Второй список классов эквивалентности состояний
+        class_1 First list of state equivalence classes
+        class_2 Second list of state equivalence classes
 
     Returns:
-        is_equal True, если списки идентачны; False, если нет
+        is_equal True if the lists are identical; False if not
     '''
 
     copy_class_1 = sorted(class_1)
@@ -88,18 +87,18 @@ def check_two_classes_on_equal(class_1, class_2):
 
 def create_automat_by_classes(automat, transitioins, classes):
     '''
-    По классам эквивалентности вершин создаёт автомат
+    By vertex equivalence classes creates an automat
 
     Parameters:
-        automat Старый автомат, на основе которого
-                сформировали классы эквивалентности
-        transitioins Переход из одного состояния в другие по каждому
-                     символу алфавита
-        classes Классы эквивалентности состояний
+        automat An old automat based on which
+                formed equivalence classes
+        transitioins Transition from one state to another for each
+                     alphabet character
+        classes State equivalence classes
 
     Returns:
-        automat Автомат, построенный на основе классов эквивалентности
-                и переходов между ними
+        automat Automat based on equivalence classes
+                and transitions between them
     '''
 
     old_start, old_acceptance = automat["start"], automat["acceptance"]
@@ -154,17 +153,17 @@ def create_automat_by_classes(automat, transitioins, classes):
 
 def remove_repetitions_from_transitions_and_classes(transitions, classes):
     '''
-    Удаляет дубликаты из списка классов эквивалентности (т.е. эквивалентные
-    состояния)
+    Removes duplicates from the list of equivalence classes (i.e. equivalent
+    states)
 
     Parameters:
-        transitions Переход из одного состояния в другие по каждому
-                     символу алфавита
-        classes Классы эквивалентности состояний
+        transitions Transition from one state to another for each
+                    alphabet character
+        classes State equivalence classes
 
     Returns:
-        new_transitions Переходы, соответствующие new_classes
-        new_classes Неэквивалентные состояния
+        new_transitions Transitions corresponding to new_classes
+        new_classes Non-equivalent states
     '''
 
     new_transitions = [transitions[0]]

@@ -18,9 +18,9 @@ class CYK:
 
     def handle_one_letter(self) -> None:
         '''
-        Обработка одной буквы алгоритмом (это первый шаг алгоритма.
-        Например, если на вход дано слово abc, сначала обработаются
-        a, b, c (это и проиходит в данной функции), затем ab, bc, затем abc)
+        Processing one letter by the algorithm (this is the first step of the algorithm.
+        For example, if the word abc is given as input, the a, b, c
+        (this is what happens in this function), then ab, bc, then abc)
         '''
 
         word_len = len(self.word)
@@ -68,10 +68,10 @@ class CYK:
     def handle_word(self, rules_without_terminals: list,
                     current_word_len: int) -> None:
         '''
-        Обрабатывает слово w[1:current_word_len].
-        Заполняет self.dp[current_word_len] значениями True/False
-        True - если данное слово выводится в грамматике
-        False - если не выводится
+        Processes the word w[1:current_word_len].
+        Fills self.dp[current_word_len] with True/False values
+        True - if the given word is displayed in the grammar
+        False - if not displayed
         '''
 
         start = self.grammar.start

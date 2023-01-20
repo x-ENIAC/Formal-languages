@@ -1,14 +1,14 @@
-# Алгоритм Кока-Янгера-Касами
+# Cocke-Younger-Kasami algorithm
 
-## Запуск
+## Run
 
-Необходимые пакеты: pytest-cov
+**Required packages:** pytest-cov
 
-Запуск: `python3 main.py <file> <word>`. Например, `python3 main.py ../examples/grammar.txt ababc`. Пример грамматики можно увидеть в папке examples. Если хочется проверить пустое слово на принадлежность грамматике, то параметр `<word>` нужно оставить пустым.
+**Run:** `python3 main.py <file> <word>`. For example, `python3 main.py ../examples/grammar.txt ababc`. An example grammar can be seen in the examples folder. If you want to check an empty word for belonging to a grammar, then the `<word>` parameter must be left empty.
 
-Алгоритм принимает на вход КС-грамматику, находящуюся в НФ Хомского. Если слово принадлежит грамматике, то программа выведет `The word is contained in the grammar`, иначе - `The word isn't contained in the grammar`.
+The algorithm takes as input a CF-grammar located in Chomsky's NF. If the word belongs to the grammar, then the program will print `The word is contained in the grammar`, otherwise - `The word isn't contained in the grammar`.
 
-Алгоритм - это двумерная динамика. Ячейка с j-ым столбцом и i-ой строкой означает, что в данный момент рассматривается первых i символов в слове, начиная с j-ого символа. В ячейке записаны нетерминалы, из которых выводится рассматриваемое слово. Сначала заполнчется первый уровень, а затем на его основе последующие. Пример грамматики:
+The algorithm is a two-dimensional dynamics. A cell with the j-th column and the i-th row means that the first i characters in the word are currently being considered, starting from the j-th character. The cell contains non-terminals from which the word in question is derived. First, the first level is filled, and then the subsequent ones based on it. Grammar example:
 ```
 s -> AB | BC
 A -> BA | a
@@ -18,21 +18,21 @@ C -> AB | a
 
 |        |     |  |     |     |  |
 | ---|-----|----- |:--------|----------:| -----:|
-| 5 букв  | ... | - | - | - | - |
-| 4 буквы   | ... | ... | - | - | - |
-| 3 буквы | ... | ... | ... | -| - |
-| 2 буквы | A,S | B | S,C | A,S | - |
-| 1 буква | B | A,C | A,C | B | A,C |
+| 5 letters  | ... | - | - | - | - |
+| 4 letters   | ... | ... | - | - | - |
+| 3 letters | ... | ... | ... | -| - |
+| 2 letters | A,S | B | S,C | A,S | - |
+| 1 letter | B | A,C | A,C | B | A,C |
 |  | b | a | a | b | a |
 
 
-Если в ячейке, которая соответствует полному слову, содержится стартовый нетерминал, то это значит, что слово выводимо в грамматике. Иначе нет.
+If the cell that corresponds to the full word contains a starting non-terminal, then this means that the word is derivable in the grammar. Otherwise no.
 
-## Покрытие тестами
+## Test coverage
 
-Покрытие тестами можно увидеть, если ввести в терминал команду `py.test test.py --cov=. --cov-report=html`, находясь в папке `src`. Будет сгенерирован отчет в html-формате (для просмотра нужно открыть `src/htmlcov/index.html` в браузере).
+Test coverage can be seen by typing `py.test test.py --cov=. --cov-report=html` while in the `src` folder. An html report will be generated (you need to open `src/htmlcov/index.html` in your browser to view it).
 
-Текущее покрытие тестами:
+Current test coverage:
 
-![Покрытие тестами](https://sun9-51.userapi.com/impg/PYAB5rLB2KBP-1UuC5J1IMJ7ZPRSOL2kl3U7fA/FrZPKTEWpRQ.jpg?size=498x282&quality=96&sign=1eca688372b3bf4423d53e2e1ef8506b&type=album)
+![Test coverage](https://sun9-51.userapi.com/impg/PYAB5rLB2KBP-1UuC5J1IMJ7ZPRSOL2kl3U7fA/FrZPKTEWpRQ.jpg?size=498x282&quality=96&sign=1eca688372b3bf4423d53e2e1ef8506b&type=album)
 
