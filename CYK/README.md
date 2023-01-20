@@ -4,7 +4,7 @@
 
 **Required packages:** pytest-cov
 
-**Run:** `python3 main.py <file> <word>`. For example, `python3 main.py ../examples/grammar.txt ababc`. An example grammar can be seen in the examples folder. If you want to check an empty word for belonging to a grammar, then the `<word>` parameter must be left empty.
+**Run:** `python3 main.py <file> <word>`. For example, `python3 main.py ../examples/grammar.txt ababc`. An example grammar can be seen in the `examples/` folder. If you want to check an empty word for belonging to a grammar, then the `<word>` parameter must be left empty.
 
 The algorithm takes as input a CF-grammar located in Chomsky's NF. If the word belongs to the grammar, then the program will print `The word is contained in the grammar`, otherwise - `The word isn't contained in the grammar`.
 
@@ -34,5 +34,5 @@ Test coverage can be seen by typing `py.test test.py --cov=. --cov-report=html` 
 
 Current test coverage:
 
-![Test coverage](https://sun9-51.userapi.com/impg/PYAB5rLB2KBP-1UuC5J1IMJ7ZPRSOL2kl3U7fA/FrZPKTEWpRQ.jpg?size=498x282&quality=96&sign=1eca688372b3bf4423d53e2e1ef8506b&type=album)
+![Test coverage](https://github.com/x-ENIAC/Formal-languages/blob/master/CYK/test_coverage.jpg)
 
